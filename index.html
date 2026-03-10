@@ -254,26 +254,26 @@
                 <label class="label">Valor Pretendido da sua Carteira de Criptoativos <span class="req">*</span></label>
                 <div class="option-group" data-name="valor_carteira">
                     <label class="option-item"><input type="radio" name="valor_carteira" value="Prefiro não dizer"><span>Prefiro não dizer</span></label>
-                    <label class="option-item"><input type="radio" name="valor_carteira" value="Até R$ 10.000"><span>Até R$ 10.000</span></label>
-                    <label class="option-item"><input type="radio" name="valor_carteira" value="R$ 10.001 - R$ 50.000"><span>R$ 10.001 - R$ 50.000</span></label>
-                    <label class="option-item"><input type="radio" name="valor_carteira" value="R$ 50.001 - R$ 200.000"><span>R$ 50.001 - R$ 200.000</span></label>
-                    <label class="option-item"><input type="radio" name="valor_carteira" value="Mais de R$ 200.000"><span>Mais de R$ 200.000</span></label>
+                    <label class="option-item"><input type="radio" name="valor_carteira" value="Menos de R$10.000"><span>Menos de R$10.000</span></label>
+                    <label class="option-item"><input type="radio" name="valor_carteira" value="R$10.000 – R$50.000"><span>R$ 10.000 - R$ 50.000</span></label>
+                    <label class="option-item"><input type="radio" name="valor_carteira" value="R$50.000 – R$200.000"><span>R$ 50.000 - R$ 200.000</span></label>
+                    <label class="option-item"><input type="radio" name="valor_carteira" value="Mais de R$200.000"><span>Mais de R$ 200.000</span></label>
                     <label class="option-item"><input type="radio" name="valor_carteira" value="Não Possuo"><span>Não Possuo</span></label>
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
 
             <div class="field" data-required data-type="radio">
-                <label class="label">Qual percentual do seu patrimônio você pretende alocar em criptoativos? <span class="req">*</span></label>
-                <div class="option-group" data-name="percentual">
-                    <label class="option-item"><input type="radio" name="percentual" value="Prefiro não dizer"><span>Prefiro não dizer</span></label>
-                    <label class="option-item"><input type="radio" name="percentual" value="Menos de 10%"><span>Menos de 10%</span></label>
-                    <label class="option-item"><input type="radio" name="percentual" value="Entre 10% e 30%"><span>Entre 10% e 30%</span></label>
-                    <label class="option-item"><input type="radio" name="percentual" value="Entre 30% e 50%"><span>Entre 30% e 50%</span></label>
-                    <label class="option-item"><input type="radio" name="percentual" value="Mais de 50%"><span>Mais de 50%</span></label>
-                </div>
-                <div class="error-msg">Selecione uma opção</div>
-            </div>
+    <label class="label">Qual percentual do seu patrimônio você pretende alocar em criptoativos? <span class="req">*</span></label>
+    <div class="option-group" data-name="percentual">
+        <label class="option-item"><input type="radio" name="percentual" value="Prefiro não dizer"><span>Prefiro não dizer</span></label>
+        <label class="option-item"><input type="radio" name="percentual" value="Menos de 15%"><span>Menos de 15%</span></label>
+        <label class="option-item"><input type="radio" name="percentual" value="Entre 15% e 40%"><span>Entre 15% e 40%</span></label>
+        <label class="option-item"><input type="radio" name="percentual" value="Entre 40% e 60%"><span>Entre 40% e 60%</span></label>
+        <label class="option-item"><input type="radio" name="percentual" value="Mais de 60%"><span>Mais de 60%</span></label>
+    </div>
+    <div class="error-msg">Selecione uma opção</div>
+</div>
 
             <div class="field" data-required data-type="radio">
                 <label class="label">Tolerância ao risco em investimentos <span class="req">*</span></label>
@@ -281,7 +281,7 @@
                     <label class="option-item"><input type="radio" name="risco" value="Conservador (priorizo segurança e proteção do patrimônio)"><span>Conservador (priorizo segurança e proteção do patrimônio)</span></label>
                     <label class="option-item"><input type="radio" name="risco" value="Moderado (aceito algum risco para buscar retorno equilibrado)"><span>Moderado (aceito algum risco para buscar retorno equilibrado)</span></label>
                     <label class="option-item"><input type="radio" name="risco" value="Agressivo (estou disposto a assumir maiores riscos para buscar altos retornos)"><span>Agressivo (estou disposto a assumir maiores riscos para buscar altos retornos)</span></label>
-                    <label class="option-item"><input type="radio" name="risco" value="Agressivo e além (disposto a assumir riscos extremos para buscar retornos elevados)"><span>Agressivo e além (disposto a assumir riscos extremos para buscar retornos elevados)</span></label>
+                
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
@@ -521,7 +521,17 @@ function submitForm() {
     params.append('entry.1707582076', getRadioValue('nivel'));
 
     // Seção 2: Objetivos
-    getCheckboxValues('objetivos').forEach(v => params.append('entry.1132284262', v));
+    const objetivosChecks = document.querySelectorAll('input[name="objetivos"]:checked');
+    objetivosChecks.forEach(cb => {
+        if (cb.value === '__other__') {
+            const otherInput = document.querySelector('[data-other="objetivos"]');
+            params.append('entry.1132284262', '__other_option__');
+            params.append('entry.1132284262.other_option_response', otherInput && otherInput.value.trim() ? otherInput.value.trim() : '');
+        } else {
+            params.append('entry.1132284262', cb.value);
+        }
+    });
+
     params.append('entry.89055574', getRadioValue('estrategia'));
     params.append('entry.1061090995', document.getElementById('estrategia_detalhe').value.trim() || '');
 
