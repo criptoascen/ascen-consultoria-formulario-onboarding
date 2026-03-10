@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário Inicial — Ascen Cripto</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --orange:#ff6600;--orange-light:#ff8533;--orange-glow:rgba(255,102,0,0.12);
+            --petrol:#223947;--petrol-light:#2e5b76;--petrol-deep:#0f1e28;
+            --white:#ffffff;--text:#f1f5f9;--text-sec:#8fa8bc;
+            --border:rgba(46,91,118,0.3);--card-bg:rgba(34,57,71,0.85);
+        }
+        body{font-family:'Sora',sans-serif;background:var(--petrol-deep);color:var(--text);min-height:100vh;overflow-x:hidden}
+        .bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+            background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(255,102,0,0.05),transparent),
+                        radial-gradient(ellipse 60% 50% at 80% 90%,rgba(46,91,118,0.12),transparent)}
+        .grid{position:fixed;inset:0;z-index:0;pointer-events:none;
+            background-image:linear-gradient(rgba(46,91,118,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(46,91,118,0.03) 1px,transparent 1px);background-size:80px 80px}
+        .container{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:24px 16px 60px}
+        .header{text-align:center;padding:40px 0 32px}
+        .header img{max-width:320px;width:100%;height:auto;filter:drop-shadow(0 4px 24px rgba(255,102,0,0.2))}
+        .card{background:var(--card-bg);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:20px;padding:32px;margin-bottom:24px;
+            box-shadow:0 0 60px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.02)}
+        .card.intro{border-left:3px solid var(--orange)}
+        .sec-label{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:6px}
+        .sec-title{font-size:22px;font-weight:700;margin-bottom:8px}
+        .sec-desc{color:var(--text-sec);font-size:14px;line-height:1.6;margin-bottom:0}
+        .sec-desc strong{color:var(--orange)}
+        .field{margin-bottom:24px}
+        .field:last-child{margin-bottom:0}
+        label.label{display:block;font-size:15px;font-weight:600;margin-bottom:8px;line-height:1.4}
+        label.label .req{color:var(--orange);margin-left:2px}
+        .hint{font-size:12px;color:var(--text-sec);font-style:italic;margin-bottom:8px}
+        input[type="text"],input[type="email"],input[type="tel"],textarea{
+            width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid var(--border);
+            background:rgba(15,30,40,0.6);color:var(--text);font-family:'Sora',sans-serif;font-size:14px;
+            transition:border-color 0.2s,box-shadow 0.2s;outline:none}
+        input:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px var(--orange-glow)}
+        textarea{min-height:100px;resize:vertical}
+        ::placeholder{color:rgba(143,168,188,0.5)}
+        .option-group{display:flex;flex-direction:column;gap:10px}
+        .option-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border);
+            background:rgba(15,30,40,0.4);cursor:pointer;transition:all 0.2s;line-height:1.4}
+        .option-item:hover{border-color:var(--orange);background:rgba(255,102,0,0.04)}
+        .option-item.selected{border-color:var(--orange);background:rgba(255,102,0,0.08);box-shadow:0 0 16px rgba(255,102,0,0.08)}
+        .option-item input[type="radio"],.option-item input[type="checkbox"]{
+            appearance:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--border);
+            flex-shrink:0;margin-top:1px;transition:all 0.2s;cursor:pointer;position:relative}
+        .option-item input[type="checkbox"]{border-radius:6px}
+        .option-item input:checked{border-color:var(--orange);background:var(--orange)}
+        .option-item input:checked::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+            width:8px;height:8px;border-radius:50%;background:var(--white)}
+        .option-item input[type="checkbox"]:checked::after{width:10px;height:8px;border-radius:0;background:none;
+            border-left:2px solid var(--white);border-bottom:2px solid var(--white);transform:translate(-50%,-60%) rotate(-45deg)}
+        .option-item span{font-size:14px;padding-top:1px}
+        .other-input{margin-top:8px;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);
+            background:rgba(15,30,40,0.5);color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none}
+        .other-input:focus{border-color:var(--orange)}
+        .nav-row{display:flex;gap:12px;justify-content:space-between;margin-top:0}
+        .btn{padding:16px 32px;border:none;border-radius:14px;font-family:'Sora',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s}
+        .btn-primary{background:linear-gradient(135deg,var(--orange),#e05500);color:var(--white);box-shadow:0 4px 20px rgba(255,102,0,0.3);flex:1}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,102,0,0.4)}
+        .btn-secondary{background:rgba(46,91,118,0.2);color:var(--text);border:1.5px solid var(--border);flex:0}
+        .btn-secondary:hover{border-color:var(--orange);color:var(--orange)}
+        .btn:disabled{opacity:0.4;pointer-events:none}
+        .progress{display:flex;gap:8px;margin-bottom:24px}
+        .progress .dot{flex:1;height:4px;border-radius:2px;background:rgba(46,91,118,0.2);transition:background 0.3s}
+        .progress .dot.active{background:var(--orange)}
+        .progress .dot.done{background:var(--petrol-light)}
+        .success-icon{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--orange),#e05500);
+            display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:36px;
+            box-shadow:0 8px 32px rgba(255,102,0,0.3)}
+        .success-title{font-size:28px;font-weight:800;text-align:center;margin-bottom:12px}
+        .success-text{text-align:center;color:var(--text-sec);line-height:1.6;font-size:15px}
+        @media(max-width:600px){
+            .card{padding:24px 18px;border-radius:16px}
+            .sec-title{font-size:19px}
+            .header img{max-width:260px}
+            .btn{padding:14px 20px;font-size:14px}
+        }
+        .step{display:none}
+        .step.active{display:block;animation:fadeUp 0.4s ease}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+        .error-msg{color:#f87171;font-size:12px;margin-top:6px;display:none}
+        .field.error input,.field.error textarea{border-color:#f87171}
+        .field.error .error-msg{display:block}
+    </style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grid"></div>
+
+<div class="container">
+    <div class="header">
+        <img src="logo-banner.png" alt="Ascen Cripto">
+    </div>
+
+    <!-- STEP 1: Intro -->
+    <div class="step active" id="step1">
+        <div class="card intro">
+            <div class="sec-label">Formulário Inicial</div>
+            <div class="sec-title">Ascen Consultoria em Criptoativos</div>
+            <p class="sec-desc">Formulário para iniciação de serviços da <strong>AC Consultoria em Criptoativos</strong></p>
+        </div>
+        <div class="nav-row">
+            <button class="btn btn-primary" onclick="goStep(2)">Começar →</button>
+        </div>
+    </div>
+
+    <!-- STEP 2: Dados Pessoais e Experiência -->
+    <div class="step" id="step2">
+        <div class="progress"><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="card">
+            <div class="sec-label">Seção 1 de 5</div>
+            <div class="sec-title">Dados Pessoais e Contato</div>
+
+            <div class="field" data-required>
+                <label class="label">Nome <span class="req">*</span></label>
+                <input type="text" id="nome" placeholder="Seu nome completo">
+                <div class="error-msg">Este campo é obrigatório</div>
+            </div>
+            <div class="field" data-required>
+                <label class="label">Nacionalidade <span class="req">*</span></label>
+                <input type="text" id="nacionalidade" placeholder="Ex: Brasileiro(a)">
+                <div class="error-msg">Este campo é obrigatório</div>
+            </div>
+            <div class="field" data-required>
+                <label class="label">CPF <span class="req">*</span></label>
+                <input type="text" id="cpf" placeholder="000.000.000-00">
+                <div class="error-msg">Este campo é obrigatório</div>
+            </div>
+            <div class="field" data-required>
+                <label class="label">Endereço <span class="req">*</span></label>
+                <input type="text" id="endereco" placeholder="Seu endereço completo">
+                <div class="error-msg">Este campo é obrigatório</div>
+            </div>
+            <div class="field" data-required>
+                <label class="label">Telefone (WhatsApp) <span class="req">*</span></label>
+                <input type="tel" id="telefone" placeholder="(00) 00000-0000">
+                <div class="error-msg">Este campo é obrigatório</div>
+            </div>
+            <div class="field" data-required>
+                <label class="label">E-mail <span class="req">*</span></label>
+                <input type="email" id="email" placeholder="seu@email.com">
+                <div class="error-msg">Insira um e-mail válido</div>
+            </div>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Canal de Comunicação Preferido <span class="req">*</span></label>
+                <div class="option-group" data-name="canal">
+                    <label class="option-item"><input type="radio" name="canal" value="WhatsApp"><span>WhatsApp</span></label>
+                    <label class="option-item"><input type="radio" name="canal" value="Telegram"><span>Telegram</span></label>
+                    <label class="option-item"><input type="radio" name="canal" value="E-mail"><span>E-mail</span></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Você investe no mercado financeiro tradicional? <span class="req">*</span></label>
+                <div class="option-group" data-name="mercado_trad">
+                    <label class="option-item"><input type="radio" name="mercado_trad" value="Sim"><span>Sim</span></label>
+                    <label class="option-item"><input type="radio" name="mercado_trad" value="Não"><span>Não</span></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Você investe em criptoativos/criptomoedas? <span class="req">*</span></label>
+                <div class="option-group" data-name="investe_cripto">
+                    <label class="option-item"><input type="radio" name="investe_cripto" value="Sim"><span>Sim</span></label>
+                    <label class="option-item"><input type="radio" name="investe_cripto" value="Não"><span>Não</span></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
+
+            <div class="field">
+                <label class="label">Investe há quanto tempo em criptoativos?</label>
+                <input type="text" id="tempo_cripto" placeholder="Ex: 2 anos">
+            </div>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Qual seu nível de conhecimento sobre criptoativos? <span class="req">*</span></label>
+                <div class="option-group" data-name="nivel">
+                    <label class="option-item"><input type="radio" name="nivel" value="Leigo"><span>Leigo</span></label>
+                    <label class="option-item"><input type="radio" name="nivel" value="Básico (conceitos gerais)"><span>Básico (conceitos gerais)</span></label>
+                    <label class="option-item"><input type="radio" name="nivel" value="Intermediário (estratégias e plataformas)"><span>Intermediário (estratégias e plataformas)</span></label>
+                    <label class="option-item"><input type="radio" name="nivel" value="Avançado (trading, DeFi, e gestão de carteiras)"><span>Avançado (trading, DeFi, e gestão de carteiras)</span></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
+        </div>
+        <div class="nav-row">
+            <button class="btn btn-secondary" onclick="goStep(1)">← Voltar</button>
+            <button class="btn btn-primary" onclick="validateAndGo(2,3)">Próximo →</button>
+        </div>
+    </div>
+
+    <!-- STEP 3: Objetivos na Consultoria -->
+    <div class="step" id="step3">
+        <div class="progress"><div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="card">
+            <div class="sec-label">Seção 2 de 5</div>
+            <div class="sec-title">Objetivos na Consultoria</div>
+
+            <div class="field" data-required data-type="checkbox">
+                <label class="label">Interesses / Objetivos <span class="req">*</span></label>
+                <div class="option-group" data-name="objetivos">
+                    <label class="option-item"><input type="checkbox" name="objetivos" value="Retornos Financeiros"><span>Retornos Financeiros</span></label>
+                    <label class="option-item"><input type="checkbox" name="objetivos" value="Proteger Patrimônio"><span>Proteger Patrimônio</span></label>
+                    <label class="option-item"><input type="checkbox" name="objetivos" value="Diversificação"><span>Diversificação</span></label>
+                    <label class="option-item"><input type="checkbox" name="objetivos" value="Criação ou Reorganização de Carteira"><span>Criação ou Reorganização de Carteira</span></label>
+                    <label class="option-item"><input type="checkbox" name="objetivos" value="Aprender sobre o indicador"><span>Aprender sobre o indicador</span></label>
+                    <label class="option-item"><input type="checkbox" name="objetivos" value="__other__"><span>Outro:</span><input type="text" class="other-input" placeholder="Especifique..." data-other="objetivos"></label>
+                </div>
+                <div class="error-msg">Selecione pelo menos uma opção</div>
+            </div>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Possui estratégia definida para o investimento em criptoativos? <span class="req">*</span></label>
+                <div class="option-group" data-name="estrategia">
+                    <label class="option-item"><input type="radio" name="estrategia" value="Sim"><span>Sim</span></label>
+                    <label class="option-item"><input type="radio" name="estrategia" value="Não"><span>Não</span></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
+
+            <div class="field">
+                <label class="label">Se possui, comente mais sobre (opcional)</label>
+                <textarea id="estrategia_detalhe" placeholder="Descreva sua estratégia atual..."></textarea>
+            </div>
+        </div>
+        <div class="nav-row">
+            <button class="btn btn-secondary" onclick="goStep(2)">← Voltar</button>
+            <button class="btn btn-primary" onclick="validateAndGo(3,4)">Próximo →</button>
+        </div>
+    </div>
+
+    <!-- STEP 4: Finanças -->
+    <div class="step" id="step4">
+        <div class="progress"><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="card">
+            <div class="sec-label">Seção 3 de 5</div>
+            <div class="sec-title">Finanças</div>
+            <p class="hint">Dados financeiros (opcional)</p>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Valor Pretendido da sua Carteira de Criptoativos <span class="req">*</span></label>
+                <div class="option-group" data-name="valor_carteira">
+                    <label class="option-item"><input type="radio" name="valor_carteira" value="Prefiro não dizer"><span>Prefiro não dizer</span></label>
+                    <label class="option-item"><input type="radio" name="valor_carteira" value="Até R$ 10.000"><span>Até R$ 10.000</span></label>
+                    <label class="option-item"><input type="radio" name="valor_carteira" value="R$ 10.001 - R$ 50.000"><span>R$ 10.001 - R$ 50.000</span></label>
+                    <label class="option-item"><input type="radio" name="valor_carteira" value="R$ 50.001 - R$ 200.000"><span>R$ 50.001 - R$ 200.000</span></label>
+                    <label class="option-item"><input type="radio" name="valor_carteira" value="Mais de R$ 200.000"><span>Mais de R$ 200.000</span></label>
+                    <label class="option-item"><input type="radio" name="valor_carteira" value="Não Possuo"><span>Não Possuo</span></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Qual percentual do seu patrimônio você pretende alocar em criptoativos? <span class="req">*</span></label>
+                <div class="option-group" data-name="percentual">
+                    <label class="option-item"><input type="radio" name="percentual" value="Prefiro não dizer"><span>Prefiro não dizer</span></label>
+                    <label class="option-item"><input type="radio" name="percentual" value="Menos de 10%"><span>Menos de 10%</span></label>
+                    <label class="option-item"><input type="radio" name="percentual" value="Entre 10% e 30%"><span>Entre 10% e 30%</span></label>
+                    <label class="option-item"><input type="radio" name="percentual" value="Entre 30% e 50%"><span>Entre 30% e 50%</span></label>
+                    <label class="option-item"><input type="radio" name="percentual" value="Mais de 50%"><span>Mais de 50%</span></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Tolerância ao risco em investimentos <span class="req">*</span></label>
+                <div class="option-group" data-name="risco">
+                    <label class="option-item"><input type="radio" name="risco" value="Conservador (priorizo segurança e proteção do patrimônio)"><span>Conservador (priorizo segurança e proteção do patrimônio)</span></label>
+                    <label class="option-item"><input type="radio" name="risco" value="Moderado (aceito algum risco para buscar retorno equilibrado)"><span>Moderado (aceito algum risco para buscar retorno equilibrado)</span></label>
+                    <label class="option-item"><input type="radio" name="risco" value="Agressivo (estou disposto a assumir maiores riscos para buscar altos retornos)"><span>Agressivo (estou disposto a assumir maiores riscos para buscar altos retornos)</span></label>
+                    <label class="option-item"><input type="radio" name="risco" value="Agressivo e além (disposto a assumir riscos extremos para buscar retornos elevados)"><span>Agressivo e além (disposto a assumir riscos extremos para buscar retornos elevados)</span></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
+        </div>
+        <div class="nav-row">
+            <button class="btn btn-secondary" onclick="goStep(3)">← Voltar</button>
+            <button class="btn btn-primary" onclick="validateAndGo(4,5)">Próximo →</button>
+        </div>
+    </div>
+
+    <!-- STEP 5: Corretoras e Criptoativos -->
+    <div class="step" id="step5">
+        <div class="progress"><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="card">
+            <div class="sec-label">Seção 4 de 5</div>
+            <div class="sec-title">Corretoras e Criptoativos</div>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Possui Conta em Corretora? <span class="req">*</span></label>
+                <div class="option-group" data-name="corretora">
+                    <label class="option-item"><input type="radio" name="corretora" value="Sim"><span>Sim</span></label>
+                    <label class="option-item"><input type="radio" name="corretora" value="Não"><span>Não</span></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
+
+            <div class="field">
+                <label class="label">Se sim, qual(is) corretora(s) possui conta?</label>
+                <input type="text" id="quais_corretoras" placeholder="Ex: Binance, Coinbase...">
+            </div>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Possui conhecimento em CARTEIRAS DESCENTRALIZADAS (DEXs) para Gestão de criptoativos? <span class="req">*</span></label>
+                <div class="option-group" data-name="carteira_dex">
+                    <label class="option-item"><input type="radio" name="carteira_dex" value="Sim"><span>Sim</span></label>
+                    <label class="option-item"><input type="radio" name="carteira_dex" value="Não"><span>Não</span></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Possui familiaridade com softwares de Corretoras e suas configurações? <span class="req">*</span></label>
+                <div class="option-group" data-name="familiaridade_sw">
+                    <label class="option-item"><input type="radio" name="familiaridade_sw" value="Sim"><span>Sim</span></label>
+                    <label class="option-item"><input type="radio" name="familiaridade_sw" value="Não"><span>Não</span></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
+        </div>
+        <div class="nav-row">
+            <button class="btn btn-secondary" onclick="goStep(4)">← Voltar</button>
+            <button class="btn btn-primary" onclick="validateAndGo(5,6)">Próximo →</button>
+        </div>
+    </div>
+
+    <!-- STEP 6: Contratação de Serviço -->
+    <div class="step" id="step6">
+        <div class="progress"><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div></div>
+        <div class="card">
+            <div class="sec-label">Seção 5 de 5</div>
+            <div class="sec-title">Contratação de Serviço</div>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Tipo de Consultoria <span class="req">*</span></label>
+                <div class="option-group" data-name="tipo_consultoria">
+                    <label class="option-item"><input type="radio" name="tipo_consultoria" value="Consultoria Cripto Start"><span>Consultoria Cripto Start</span></label>
+                    <label class="option-item"><input type="radio" name="tipo_consultoria" value="Consultoria Mensal"><span>Consultoria Mensal</span></label>
+                    <label class="option-item"><input type="radio" name="tipo_consultoria" value="Consultoria VIP"><span>Consultoria VIP</span></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Período de Consultoria <span class="req">*</span></label>
+                <div class="option-group" data-name="periodo">
+                    <label class="option-item"><input type="radio" name="periodo" value="Pontual de 7 dias (válido na opção 'start')"><span>Pontual de 7 dias (válido na opção 'start')</span></label>
+                    <label class="option-item"><input type="radio" name="periodo" value="Trimestral (Apenas Cripto Start)"><span>Trimestral (Apenas Cripto Start)</span></label>
+                    <label class="option-item"><input type="radio" name="periodo" value="Semestral"><span>Semestral</span></label>
+                    <label class="option-item"><input type="radio" name="periodo" value="Anual"><span>Anual</span></label>
+                    <label class="option-item"><input type="radio" name="periodo" value="__other__"><span>Outro:</span><input type="text" class="other-input" placeholder="Especifique..." data-other="periodo"></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Frequência de Contato <span class="req">*</span></label>
+                <p class="hint">A escolha será feita no canal de comunicação preferido</p>
+                <div class="option-group" data-name="frequencia">
+                    <label class="option-item"><input type="radio" name="frequencia" value="Constantemente – Busco Diversas Informações"><span>Constantemente – Busco Diversas Informações</span></label>
+                    <label class="option-item"><input type="radio" name="frequencia" value="Ocasionalmente – Busco Informações Mensais ou Bimensais"><span>Ocasionalmente – Busco Informações Mensais ou Bimensais</span></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
+
+            <div class="field">
+                <label class="label">Espaço de redação</label>
+                <input type="text" id="espaco_redacao" placeholder="Escreva aqui...">
+            </div>
+
+            <div class="field">
+                <label class="label">Qualquer informação adicional, expectativas ou observações coloque aqui</label>
+                <textarea id="info_adicional" placeholder="Escreva aqui..."></textarea>
+            </div>
+        </div>
+        <div class="nav-row">
+            <button class="btn btn-secondary" onclick="goStep(5)">← Voltar</button>
+            <button class="btn btn-primary" onclick="validateAndGo(6,7)">Próximo →</button>
+        </div>
+    </div>
+
+    <!-- STEP 7: Conclusão -->
+    <div class="step" id="step7">
+        <div class="progress"><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div></div>
+        <div class="card">
+            <div class="sec-label">Conclusão</div>
+            <div class="sec-title">Conclusão do Formulário</div>
+
+            <div class="field" data-required data-type="radio">
+                <label class="label">Declaro que as informações fornecidas são verdadeiras <span class="req">*</span></label>
+                <div class="option-group" data-name="declaracao">
+                    <label class="option-item"><input type="radio" name="declaracao" value="Concordo"><span>Concordo</span></label>
+                </div>
+                <div class="error-msg">Você precisa concordar para enviar</div>
+            </div>
+        </div>
+        <div class="nav-row">
+            <button class="btn btn-secondary" onclick="goStep(6)">← Voltar</button>
+            <button class="btn btn-primary" id="submitBtn" onclick="submitForm()">Enviar Formulário ✓</button>
+        </div>
+    </div>
+
+    <!-- STEP 8: Sucesso -->
+    <div class="step" id="step8">
+        <div class="card" style="text-align:center;padding:48px 32px">
+            <div class="success-icon">✓</div>
+            <div class="success-title">Formulário Enviado!</div>
+            <p class="success-text">Obrigado pelo seu interesse na Ascen Cripto. Nossa equipe irá analisar seu perfil e entrará em contato com você em breve.</p>
+            <br>
+            <button class="btn btn-primary" onclick="window.location.reload()" style="max-width:300px;margin:0 auto;display:block">Enviar outra resposta</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.option-item input').forEach(input => {
+    input.addEventListener('change', () => {
+        if (input.type === 'radio') {
+            input.closest('.option-group').querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
+        }
+        if (input.checked) input.closest('.option-item').classList.add('selected');
+        else input.closest('.option-item').classList.remove('selected');
+    });
+});
+
+function goStep(n) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step' + n).classList.add('active');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function validateStep(stepNum) {
+    const step = document.getElementById('step' + stepNum);
+    const fields = step.querySelectorAll('.field[data-required]');
+    let valid = true;
+    fields.forEach(field => {
+        field.classList.remove('error');
+        const type = field.dataset.type;
+        if (type === 'radio') {
+            const name = field.querySelector('.option-group').dataset.name;
+            if (!field.querySelector('input[name="' + name + '"]:checked')) { field.classList.add('error'); valid = false; }
+        } else if (type === 'checkbox') {
+            const name = field.querySelector('.option-group').dataset.name;
+            if (field.querySelectorAll('input[name="' + name + '"]:checked').length === 0) { field.classList.add('error'); valid = false; }
+        } else {
+            const input = field.querySelector('input, textarea');
+            if (input && !input.value.trim()) { field.classList.add('error'); valid = false; }
+            if (input && input.type === 'email' && input.value.trim()) {
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim())) { field.classList.add('error'); valid = false; }
+            }
+        }
+    });
+    return valid;
+}
+
+function validateAndGo(from, to) {
+    if (validateStep(from)) goStep(to);
+    else {
+        const firstError = document.querySelector('#step' + from + ' .field.error');
+        if (firstError) firstError.scrollIntoView({behavior: 'smooth', block: 'center'});
+    }
+}
+
+function getCheckboxValues(name) {
+    const checked = document.querySelectorAll('input[name="' + name + '"]:checked');
+    const values = [];
+    checked.forEach(cb => {
+        if (cb.value === '__other__') {
+            const otherInput = document.querySelector('[data-other="' + name + '"]');
+            if (otherInput && otherInput.value.trim()) values.push(otherInput.value.trim());
+        } else values.push(cb.value);
+    });
+    return values;
+}
+
+function getRadioValue(name) {
+    const checked = document.querySelector('input[name="' + name + '"]:checked');
+    if (!checked) return '';
+    if (checked.value === '__other__') {
+        const otherInput = document.querySelector('[data-other="' + name + '"]');
+        return otherInput && otherInput.value.trim() ? otherInput.value.trim() : '';
+    }
+    return checked.value;
+}
+
+function submitForm() {
+    if (!validateStep(7)) return;
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfuR78ThPtFWKO7dwXkFlTOHTxJgxcKVa_tagyHOisxR3Y7vA/formResponse';
+
+    const params = new URLSearchParams();
+
+    // Seção 1: Dados Pessoais
+    params.append('entry.979645034', document.getElementById('nome').value.trim());
+    params.append('entry.810042357', document.getElementById('nacionalidade').value.trim());
+    params.append('entry.1261652586', document.getElementById('cpf').value.trim());
+    params.append('entry.1230689849', document.getElementById('endereco').value.trim());
+    params.append('entry.685562726', document.getElementById('telefone').value.trim());
+    params.append('entry.1881763924', document.getElementById('email').value.trim());
+    params.append('entry.1988708104', getRadioValue('canal'));
+    params.append('entry.878876579', getRadioValue('mercado_trad'));
+    params.append('entry.1611461355', getRadioValue('investe_cripto'));
+    params.append('entry.1980910773', document.getElementById('tempo_cripto').value.trim());
+    params.append('entry.1707582076', getRadioValue('nivel'));
+
+    // Seção 2: Objetivos
+    getCheckboxValues('objetivos').forEach(v => params.append('entry.1132284262', v));
+    params.append('entry.89055574', getRadioValue('estrategia'));
+    params.append('entry.1061090995', document.getElementById('estrategia_detalhe').value.trim() || '');
+
+    // Seção 3: Finanças
+    params.append('entry.1268278633', getRadioValue('valor_carteira'));
+    params.append('entry.1442964842', getRadioValue('percentual'));
+    params.append('entry.1579919800', getRadioValue('risco'));
+
+    // Seção 4: Corretoras
+    params.append('entry.1702731581', getRadioValue('corretora'));
+    params.append('entry.1462491473', document.getElementById('quais_corretoras').value.trim());
+    params.append('entry.2055498786', getRadioValue('carteira_dex'));
+    params.append('entry.1702335254', getRadioValue('familiaridade_sw'));
+
+    // Seção 5: Contratação
+    params.append('entry.2117605384', getRadioValue('tipo_consultoria'));
+    params.append('entry.483318087', getRadioValue('periodo'));
+    params.append('entry.687538754', getRadioValue('frequencia'));
+    params.append('entry.695452647', document.getElementById('espaco_redacao').value.trim());
+    params.append('entry.671754045', document.getElementById('info_adicional').value.trim() || 'Nenhuma');
+
+    // Conclusão
+    params.append('entry.652355824', getRadioValue('declaracao'));
+
+    fetch(GOOGLE_FORM_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+    })
+    .then(() => goStep(8))
+    .catch(error => {
+        console.error('Erro ao enviar:', error);
+        alert('Ocorreu um erro ao enviar. Tente novamente.');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.textContent = 'Enviar Formulário ✓';
+    });
+}
+</script>
+</body>
+</html>
