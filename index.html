@@ -13,26 +13,28 @@
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
         :root{
             --orange:#ff6600;--orange-light:#ff8533;--orange-glow:rgba(255,102,0,0.12);
-            --petrol:#223947;--petrol-light:#2e5b76;--petrol-deep:#0f1e28;
-            --white:#ffffff;--text:#f1f5f9;--text-sec:#8fa8bc;
-            --border:rgba(46,91,118,0.3);--card-bg:rgba(34,57,71,0.85);
+            --petrol:#2e5b76;--petrol-deep:#0a1a2e;--steel:#3a4a5a;
+            --gold:#c9a96e;--white:#ffffff;
+            --text:#f1f5f9;--text-sec:#8fa8bc;
+            --border:rgba(46,91,118,0.3);--card-bg:rgba(58,74,90,0.55);
+            --green:#22c55e;--red:#ef4444;
         }
         body{font-family:'Sora',sans-serif;background:var(--petrol-deep);color:var(--text);min-height:100vh;overflow-x:hidden}
         .bg{position:fixed;inset:0;z-index:0;pointer-events:none;
-            background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(255,102,0,0.05),transparent),
-                        radial-gradient(ellipse 60% 50% at 80% 90%,rgba(46,91,118,0.12),transparent)}
+            background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(255,102,0,0.06),transparent),
+                        radial-gradient(ellipse 60% 50% at 80% 90%,rgba(46,91,118,0.18),transparent)}
         .grid{position:fixed;inset:0;z-index:0;pointer-events:none;
-            background-image:linear-gradient(rgba(46,91,118,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(46,91,118,0.03) 1px,transparent 1px);background-size:80px 80px}
+            background-image:linear-gradient(rgba(46,91,118,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(46,91,118,0.04) 1px,transparent 1px);background-size:80px 80px}
         .container{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:24px 16px 60px}
         .header{text-align:center;padding:40px 0 32px}
-        .header img{max-width:320px;width:100%;height:auto;filter:drop-shadow(0 4px 24px rgba(255,102,0,0.2))}
+        .header img{max-width:320px;width:100%;height:auto;filter:drop-shadow(0 4px 24px rgba(255,102,0,0.25))}
         .card{background:var(--card-bg);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:20px;padding:32px;margin-bottom:24px;
-            box-shadow:0 0 60px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.02)}
+            box-shadow:0 0 60px rgba(0,0,0,0.35),inset 0 1px 0 rgba(255,255,255,0.03)}
         .card.intro{border-left:3px solid var(--orange)}
         .sec-label{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:6px}
-        .sec-title{font-size:22px;font-weight:700;margin-bottom:8px}
+        .sec-title{font-size:22px;font-weight:700;margin-bottom:8px;color:var(--white)}
         .sec-desc{color:var(--text-sec);font-size:14px;line-height:1.6;margin-bottom:0}
-        .sec-desc strong{color:var(--orange)}
+        .sec-desc strong{color:var(--gold)}
         .field{margin-bottom:24px}
         .field:last-child{margin-bottom:0}
         label.label{display:block;font-size:15px;font-weight:600;margin-bottom:8px;line-height:1.4}
@@ -40,14 +42,14 @@
         .hint{font-size:12px;color:var(--text-sec);font-style:italic;margin-bottom:8px}
         input[type="text"],input[type="email"],input[type="tel"],textarea{
             width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid var(--border);
-            background:rgba(15,30,40,0.6);color:var(--text);font-family:'Sora',sans-serif;font-size:14px;
+            background:rgba(10,26,46,0.6);color:var(--text);font-family:'Sora',sans-serif;font-size:16px;
             transition:border-color 0.2s,box-shadow 0.2s;outline:none}
         input:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px var(--orange-glow)}
         textarea{min-height:100px;resize:vertical}
         ::placeholder{color:rgba(143,168,188,0.5)}
         .option-group{display:flex;flex-direction:column;gap:10px}
         .option-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border);
-            background:rgba(15,30,40,0.4);cursor:pointer;transition:all 0.2s;line-height:1.4}
+            background:rgba(10,26,46,0.4);cursor:pointer;transition:all 0.2s;line-height:1.4}
         .option-item:hover{border-color:var(--orange);background:rgba(255,102,0,0.04)}
         .option-item.selected{border-color:var(--orange);background:rgba(255,102,0,0.08);box-shadow:0 0 16px rgba(255,102,0,0.08)}
         .option-item input[type="radio"],.option-item input[type="checkbox"]{
@@ -61,23 +63,23 @@
             border-left:2px solid var(--white);border-bottom:2px solid var(--white);transform:translate(-50%,-60%) rotate(-45deg)}
         .option-item span{font-size:14px;padding-top:1px}
         .other-input{margin-top:8px;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);
-            background:rgba(15,30,40,0.5);color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none}
+            background:rgba(10,26,46,0.5);color:var(--text);font-family:'Sora',sans-serif;font-size:14px;outline:none}
         .other-input:focus{border-color:var(--orange)}
         .nav-row{display:flex;gap:12px;justify-content:space-between;margin-top:0}
         .btn{padding:16px 32px;border:none;border-radius:14px;font-family:'Sora',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s}
-        .btn-primary{background:linear-gradient(135deg,var(--orange),#e05500);color:var(--white);box-shadow:0 4px 20px rgba(255,102,0,0.3);flex:1}
-        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,102,0,0.4)}
+        .btn-primary{background:linear-gradient(135deg,var(--orange),var(--gold));color:var(--white);box-shadow:0 4px 20px rgba(255,102,0,0.3);flex:1}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,102,0,0.45)}
         .btn-secondary{background:rgba(46,91,118,0.2);color:var(--text);border:1.5px solid var(--border);flex:0}
         .btn-secondary:hover{border-color:var(--orange);color:var(--orange)}
         .btn:disabled{opacity:0.4;pointer-events:none}
         .progress{display:flex;gap:8px;margin-bottom:24px}
         .progress .dot{flex:1;height:4px;border-radius:2px;background:rgba(46,91,118,0.2);transition:background 0.3s}
         .progress .dot.active{background:var(--orange)}
-        .progress .dot.done{background:var(--petrol-light)}
-        .success-icon{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--orange),#e05500);
-            display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:36px;
-            box-shadow:0 8px 32px rgba(255,102,0,0.3)}
-        .success-title{font-size:28px;font-weight:800;text-align:center;margin-bottom:12px}
+        .progress .dot.done{background:var(--gold)}
+        .success-icon{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--orange),var(--gold));
+            display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:36px;color:var(--white);
+            box-shadow:0 8px 32px rgba(255,102,0,0.35)}
+        .success-title{font-size:28px;font-weight:800;text-align:center;margin-bottom:12px;color:var(--white)}
         .success-text{text-align:center;color:var(--text-sec);line-height:1.6;font-size:15px}
         @media(max-width:600px){
             .card{padding:24px 18px;border-radius:16px}
@@ -96,12 +98,10 @@
 <body>
 <div class="bg"></div>
 <div class="grid"></div>
-
 <div class="container">
     <div class="header">
         <img src="logo-banner.png" alt="Ascen Cripto">
     </div>
-
     <!-- STEP 1: Intro -->
     <div class="step active" id="step1">
         <div class="card intro">
@@ -113,14 +113,12 @@
             <button class="btn btn-primary" onclick="goStep(2)">Começar →</button>
         </div>
     </div>
-
     <!-- STEP 2: Dados Pessoais e Experiência -->
     <div class="step" id="step2">
         <div class="progress"><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         <div class="card">
             <div class="sec-label">Seção 1 de 5</div>
             <div class="sec-title">Dados Pessoais e Contato</div>
-
             <div class="field" data-required>
                 <label class="label">Nome <span class="req">*</span></label>
                 <input type="text" id="nome" placeholder="Seu nome completo">
@@ -151,7 +149,6 @@
                 <input type="email" id="email" placeholder="seu@email.com">
                 <div class="error-msg">Insira um e-mail válido</div>
             </div>
-
             <div class="field" data-required data-type="radio">
                 <label class="label">Canal de Comunicação Preferido <span class="req">*</span></label>
                 <div class="option-group" data-name="canal">
@@ -161,7 +158,6 @@
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
-
             <div class="field" data-required data-type="radio">
                 <label class="label">Você investe no mercado financeiro tradicional? <span class="req">*</span></label>
                 <div class="option-group" data-name="mercado_trad">
@@ -170,7 +166,6 @@
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
-
             <div class="field" data-required data-type="radio">
                 <label class="label">Você investe em criptoativos/criptomoedas? <span class="req">*</span></label>
                 <div class="option-group" data-name="investe_cripto">
@@ -179,12 +174,10 @@
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
-
             <div class="field">
                 <label class="label">Investe há quanto tempo em criptoativos?</label>
                 <input type="text" id="tempo_cripto" placeholder="Ex: 2 anos">
             </div>
-
             <div class="field" data-required data-type="radio">
                 <label class="label">Qual seu nível de conhecimento sobre criptoativos? <span class="req">*</span></label>
                 <div class="option-group" data-name="nivel">
@@ -201,14 +194,12 @@
             <button class="btn btn-primary" onclick="validateAndGo(2,3)">Próximo →</button>
         </div>
     </div>
-
     <!-- STEP 3: Objetivos na Consultoria -->
     <div class="step" id="step3">
         <div class="progress"><div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         <div class="card">
             <div class="sec-label">Seção 2 de 5</div>
             <div class="sec-title">Objetivos na Consultoria</div>
-
             <div class="field" data-required data-type="checkbox">
                 <label class="label">Interesses / Objetivos <span class="req">*</span></label>
                 <div class="option-group" data-name="objetivos">
@@ -221,7 +212,6 @@
                 </div>
                 <div class="error-msg">Selecione pelo menos uma opção</div>
             </div>
-
             <div class="field" data-required data-type="radio">
                 <label class="label">Possui estratégia definida para o investimento em criptoativos? <span class="req">*</span></label>
                 <div class="option-group" data-name="estrategia">
@@ -230,7 +220,6 @@
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
-
             <div class="field">
                 <label class="label">Se possui, comente mais sobre (opcional)</label>
                 <textarea id="estrategia_detalhe" placeholder="Descreva sua estratégia atual..."></textarea>
@@ -241,7 +230,6 @@
             <button class="btn btn-primary" onclick="validateAndGo(3,4)">Próximo →</button>
         </div>
     </div>
-
     <!-- STEP 4: Finanças -->
     <div class="step" id="step4">
         <div class="progress"><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
@@ -249,7 +237,6 @@
             <div class="sec-label">Seção 3 de 5</div>
             <div class="sec-title">Finanças</div>
             <p class="hint">Dados financeiros (opcional)</p>
-
             <div class="field" data-required data-type="radio">
                 <label class="label">Valor Pretendido da sua Carteira de Criptoativos <span class="req">*</span></label>
                 <div class="option-group" data-name="valor_carteira">
@@ -262,26 +249,23 @@
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
-
             <div class="field" data-required data-type="radio">
-    <label class="label">Qual percentual do seu patrimônio você pretende alocar em criptoativos? <span class="req">*</span></label>
-    <div class="option-group" data-name="percentual">
-        <label class="option-item"><input type="radio" name="percentual" value="Prefiro não dizer"><span>Prefiro não dizer</span></label>
-        <label class="option-item"><input type="radio" name="percentual" value="Menos de 15%"><span>Menos de 15%</span></label>
-        <label class="option-item"><input type="radio" name="percentual" value="Entre 15% e 40%"><span>Entre 15% e 40%</span></label>
-        <label class="option-item"><input type="radio" name="percentual" value="Entre 40% e 60%"><span>Entre 40% e 60%</span></label>
-        <label class="option-item"><input type="radio" name="percentual" value="Mais de 60%"><span>Mais de 60%</span></label>
-    </div>
-    <div class="error-msg">Selecione uma opção</div>
-</div>
-
+                <label class="label">Qual percentual do seu patrimônio você pretende alocar em criptoativos? <span class="req">*</span></label>
+                <div class="option-group" data-name="percentual">
+                    <label class="option-item"><input type="radio" name="percentual" value="Prefiro não dizer"><span>Prefiro não dizer</span></label>
+                    <label class="option-item"><input type="radio" name="percentual" value="Menos de 15%"><span>Menos de 15%</span></label>
+                    <label class="option-item"><input type="radio" name="percentual" value="Entre 15% e 40%"><span>Entre 15% e 40%</span></label>
+                    <label class="option-item"><input type="radio" name="percentual" value="Entre 40% e 60%"><span>Entre 40% e 60%</span></label>
+                    <label class="option-item"><input type="radio" name="percentual" value="Mais de 60%"><span>Mais de 60%</span></label>
+                </div>
+                <div class="error-msg">Selecione uma opção</div>
+            </div>
             <div class="field" data-required data-type="radio">
                 <label class="label">Tolerância ao risco em investimentos <span class="req">*</span></label>
                 <div class="option-group" data-name="risco">
                     <label class="option-item"><input type="radio" name="risco" value="Conservador (priorizo segurança e proteção do patrimônio)"><span>Conservador (priorizo segurança e proteção do patrimônio)</span></label>
                     <label class="option-item"><input type="radio" name="risco" value="Moderado (aceito algum risco para buscar retorno equilibrado)"><span>Moderado (aceito algum risco para buscar retorno equilibrado)</span></label>
                     <label class="option-item"><input type="radio" name="risco" value="Agressivo (estou disposto a assumir maiores riscos para buscar altos retornos)"><span>Agressivo (estou disposto a assumir maiores riscos para buscar altos retornos)</span></label>
-                
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
@@ -291,14 +275,12 @@
             <button class="btn btn-primary" onclick="validateAndGo(4,5)">Próximo →</button>
         </div>
     </div>
-
     <!-- STEP 5: Corretoras e Criptoativos -->
     <div class="step" id="step5">
         <div class="progress"><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div></div>
         <div class="card">
             <div class="sec-label">Seção 4 de 5</div>
             <div class="sec-title">Corretoras e Criptoativos</div>
-
             <div class="field" data-required data-type="radio">
                 <label class="label">Possui Conta em Corretora? <span class="req">*</span></label>
                 <div class="option-group" data-name="corretora">
@@ -307,12 +289,10 @@
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
-
             <div class="field">
                 <label class="label">Se sim, qual(is) corretora(s) possui conta?</label>
                 <input type="text" id="quais_corretoras" placeholder="Ex: Binance, Coinbase...">
             </div>
-
             <div class="field" data-required data-type="radio">
                 <label class="label">Possui conhecimento em corretoras descentralizadas (DEXs), como Uniswap ou Aerodrome? <span class="req">*</span></label>
                 <div class="option-group" data-name="conhecimento_dex">
@@ -321,7 +301,6 @@
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
-
             <div class="field" data-required data-type="radio">
                 <label class="label">Possui familiaridade com subcontas em Corretoras e a sua configuração? <span class="req">*</span></label>
                 <div class="option-group" data-name="subcontas_corretoras">
@@ -336,14 +315,12 @@
             <button class="btn btn-primary" onclick="validateAndGo(5,6)">Próximo →</button>
         </div>
     </div>
-
     <!-- STEP 6: Contratação de Serviço -->
     <div class="step" id="step6">
         <div class="progress"><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div></div>
         <div class="card">
             <div class="sec-label">Seção 5 de 5</div>
             <div class="sec-title">Contratação de Serviço</div>
-
             <div class="field" data-required data-type="radio">
                 <label class="label">Tipo de Consultoria <span class="req">*</span></label>
                 <div class="option-group" data-name="tipo_consultoria">
@@ -353,7 +330,6 @@
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
-
             <div class="field" data-required data-type="radio">
                 <label class="label">Período de Contratação <span class="req">*</span></label>
                 <div class="hint">(caso mais de 1 ano, coloque na opção “outro”)</div>
@@ -365,7 +341,6 @@
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
-
             <div class="field" data-required data-type="radio">
                 <label class="label">Frequência de Contato <span class="req">*</span></label>
                 <div class="hint">(o contato será feito no canal de comunicação preferido)</div>
@@ -375,12 +350,10 @@
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
-
             <div class="field">
                 <label class="label">Cupom de Indicação</label>
                 <input type="text" id="cupom_indicacao" placeholder="Escreva aqui...">
             </div>
-
             <div class="field">
                 <label class="label">Qualquer informação adicional, expectativas ou necessidades coloque aqui</label>
                 <textarea id="info_adicional" placeholder="Escreva aqui..."></textarea>
@@ -391,14 +364,12 @@
             <button class="btn btn-primary" onclick="validateAndGo(6,7)">Próximo →</button>
         </div>
     </div>
-
     <!-- STEP 7: Conclusão -->
     <div class="step" id="step7">
         <div class="progress"><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div></div>
         <div class="card">
             <div class="sec-label">Conclusão</div>
             <div class="sec-title">Conclusão do Formulário</div>
-
             <div class="field" data-required data-type="radio">
                 <label class="label">Declaro que as informações fornecidas são verdadeiras <span class="req">*</span></label>
                 <div class="option-group" data-name="declaracao">
@@ -412,7 +383,6 @@
             <button class="btn btn-primary" id="submitBtn" onclick="submitForm()">Enviar Formulário ✓</button>
         </div>
     </div>
-
     <!-- STEP 8: Sucesso -->
     <div class="step" id="step8">
         <div class="card" style="text-align:center;padding:48px 32px">
@@ -425,7 +395,51 @@
     </div>
 </div>
 
+<!-- Iframe oculto pra receber a resposta do Google Forms (evita CORS) -->
+<iframe name="hidden_form_iframe" style="display:none" title="hidden"></iframe>
+
+<!-- Form HTML oculto que efetivamente faz o submit pro Google Forms -->
+<form id="googleForm" action="https://docs.google.com/forms/d/e/1FAIpQLSfuR78ThPtFWKO7dwXkFlTOHTxJgxcKVa_tagyHOisxR3Y7vA/formResponse"
+      method="POST" target="hidden_form_iframe" style="display:none">
+</form>
+
 <script>
+// ============================================================
+// Map dos entry IDs do Google Form (não mexer)
+// ============================================================
+const FORM_ENTRIES = {
+    nome: 'entry.979645034',
+    nacionalidade: 'entry.810042357',
+    cpf: 'entry.1261652586',
+    endereco: 'entry.1230689849',
+    telefone: 'entry.685562726',
+    email: 'entry.1881763924',
+    canal: 'entry.1988708104',
+    mercado_trad: 'entry.878876579',
+    investe_cripto: 'entry.1611461355',
+    tempo_cripto: 'entry.1980910773',
+    nivel: 'entry.1707582076',
+    objetivos: 'entry.1132284262',
+    estrategia: 'entry.89055574',
+    estrategia_detalhe: 'entry.1061090995',
+    valor_carteira: 'entry.1268278633',
+    percentual: 'entry.1442964842',
+    risco: 'entry.1579919800',
+    corretora: 'entry.1702731581',
+    quais_corretoras: 'entry.1462491473',
+    conhecimento_dex: 'entry.2055498786',
+    subcontas_corretoras: 'entry.1702335254',
+    tipo_consultoria: 'entry.2117605384',
+    periodo_contratacao: 'entry.483318087',
+    frequencia_contato: 'entry.687538754',
+    cupom_indicacao: 'entry.695452647',
+    info_adicional: 'entry.671754045',
+    declaracao: 'entry.652355824',
+};
+
+// ============================================================
+// UI: marca radio/checkbox visualmente
+// ============================================================
 document.querySelectorAll('.option-item input').forEach(input => {
     input.addEventListener('change', () => {
         if (input.type === 'radio') {
@@ -474,18 +488,6 @@ function validateAndGo(from, to) {
     }
 }
 
-function getCheckboxValues(name) {
-    const checked = document.querySelectorAll('input[name="' + name + '"]:checked');
-    const values = [];
-    checked.forEach(cb => {
-        if (cb.value === '__other__') {
-            const otherInput = document.querySelector('[data-other="' + name + '"]');
-            if (otherInput && otherInput.value.trim()) values.push(otherInput.value.trim());
-        } else values.push(cb.value);
-    });
-    return values;
-}
-
 function getRadioValue(name) {
     const checked = document.querySelector('input[name="' + name + '"]:checked');
     if (!checked) return '';
@@ -496,81 +498,104 @@ function getRadioValue(name) {
     return checked.value;
 }
 
+// ============================================================
+// Adiciona um <input hidden name=... value=...> no form oculto
+// ============================================================
+function appendHidden(form, name, value) {
+    const inp = document.createElement('input');
+    inp.type = 'hidden';
+    inp.name = name;
+    inp.value = value;
+    form.appendChild(inp);
+}
+
 function submitForm() {
     if (!validateStep(7)) return;
-
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
     btn.textContent = 'Enviando...';
 
-    const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfuR78ThPtFWKO7dwXkFlTOHTxJgxcKVa_tagyHOisxR3Y7vA/formResponse';
+    const form = document.getElementById('googleForm');
+    // Limpa qualquer hidden que tenha ficado de tentativa anterior
+    form.innerHTML = '';
 
-    const params = new URLSearchParams();
+    // ----- Texto livre -----
+    appendHidden(form, FORM_ENTRIES.nome, document.getElementById('nome').value.trim());
+    appendHidden(form, FORM_ENTRIES.nacionalidade, document.getElementById('nacionalidade').value.trim());
+    appendHidden(form, FORM_ENTRIES.cpf, document.getElementById('cpf').value.trim());
+    appendHidden(form, FORM_ENTRIES.endereco, document.getElementById('endereco').value.trim());
+    appendHidden(form, FORM_ENTRIES.telefone, document.getElementById('telefone').value.trim());
+    appendHidden(form, FORM_ENTRIES.email, document.getElementById('email').value.trim());
 
-    // Seção 1: Dados Pessoais
-    params.append('entry.979645034', document.getElementById('nome').value.trim());
-    params.append('entry.810042357', document.getElementById('nacionalidade').value.trim());
-    params.append('entry.1261652586', document.getElementById('cpf').value.trim());
-    params.append('entry.1230689849', document.getElementById('endereco').value.trim());
-    params.append('entry.685562726', document.getElementById('telefone').value.trim());
-    params.append('entry.1881763924', document.getElementById('email').value.trim());
-    params.append('entry.1988708104', getRadioValue('canal'));
-    params.append('entry.878876579', getRadioValue('mercado_trad'));
-    params.append('entry.1611461355', getRadioValue('investe_cripto'));
-    params.append('entry.1980910773', document.getElementById('tempo_cripto').value.trim());
-    params.append('entry.1707582076', getRadioValue('nivel'));
+    // ----- Radios -----
+    appendHidden(form, FORM_ENTRIES.canal, getRadioValue('canal'));
+    appendHidden(form, FORM_ENTRIES.mercado_trad, getRadioValue('mercado_trad'));
+    appendHidden(form, FORM_ENTRIES.investe_cripto, getRadioValue('investe_cripto'));
+    appendHidden(form, FORM_ENTRIES.tempo_cripto, document.getElementById('tempo_cripto').value.trim());
+    appendHidden(form, FORM_ENTRIES.nivel, getRadioValue('nivel'));
 
-    // Seção 2: Objetivos
+    // ----- Checkboxes (objetivos) -----
+    // Checkbox no Google Form: precisa appendar uma linha por valor selecionado.
     const objetivosChecks = document.querySelectorAll('input[name="objetivos"]:checked');
     objetivosChecks.forEach(cb => {
         if (cb.value === '__other__') {
             const otherInput = document.querySelector('[data-other="objetivos"]');
-            params.append('entry.1132284262', '__other_option__');
-            params.append('entry.1132284262.other_option_response', otherInput && otherInput.value.trim() ? otherInput.value.trim() : '');
+            const txt = otherInput && otherInput.value.trim() ? otherInput.value.trim() : '';
+            if (txt) {
+                appendHidden(form, FORM_ENTRIES.objetivos, '__other_option__');
+                appendHidden(form, FORM_ENTRIES.objetivos + '.other_option_response', txt);
+            }
         } else {
-            params.append('entry.1132284262', cb.value);
+            appendHidden(form, FORM_ENTRIES.objetivos, cb.value);
         }
     });
 
-    params.append('entry.89055574', getRadioValue('estrategia'));
-    params.append('entry.1061090995', document.getElementById('estrategia_detalhe').value.trim() || '');
+    appendHidden(form, FORM_ENTRIES.estrategia, getRadioValue('estrategia'));
+    appendHidden(form, FORM_ENTRIES.estrategia_detalhe, document.getElementById('estrategia_detalhe').value.trim());
 
-    // Seção 3: Finanças
-    params.append('entry.1268278633', getRadioValue('valor_carteira'));
-    params.append('entry.1442964842', getRadioValue('percentual'));
-    params.append('entry.1579919800', getRadioValue('risco'));
+    appendHidden(form, FORM_ENTRIES.valor_carteira, getRadioValue('valor_carteira'));
+    appendHidden(form, FORM_ENTRIES.percentual, getRadioValue('percentual'));
+    appendHidden(form, FORM_ENTRIES.risco, getRadioValue('risco'));
 
-    // Seção 4: Corretoras
-    params.append('entry.1702731581', getRadioValue('corretora'));
-    params.append('entry.1462491473', document.getElementById('quais_corretoras').value.trim());
-    params.append('entry.2055498786', getRadioValue('conhecimento_dex'));
-    params.append('entry.1702335254', getRadioValue('subcontas_corretoras'));
+    appendHidden(form, FORM_ENTRIES.corretora, getRadioValue('corretora'));
+    appendHidden(form, FORM_ENTRIES.quais_corretoras, document.getElementById('quais_corretoras').value.trim());
+    appendHidden(form, FORM_ENTRIES.conhecimento_dex, getRadioValue('conhecimento_dex'));
+    appendHidden(form, FORM_ENTRIES.subcontas_corretoras, getRadioValue('subcontas_corretoras'));
 
-    // Seção 5: Contratação
-    params.append('entry.2117605384', getRadioValue('tipo_consultoria'));
-    params.append('entry.483318087', getRadioValue('periodo_contratacao'));
-    params.append('entry.687538754', getRadioValue('frequencia_contato'));
-    params.append('entry.695452647', document.getElementById('cupom_indicacao').value.trim());
-    params.append('entry.671754045', document.getElementById('info_adicional').value.trim() || 'Nenhuma');
+    appendHidden(form, FORM_ENTRIES.tipo_consultoria, getRadioValue('tipo_consultoria'));
 
-    // Conclusão
-    params.append('entry.652355824', getRadioValue('declaracao'));
+    // Periodo: trata "outro" igual ao de objetivos
+    const periodoChecked = document.querySelector('input[name="periodo_contratacao"]:checked');
+    if (periodoChecked) {
+        if (periodoChecked.value === '__other__') {
+            const otherInput = document.querySelector('[data-other="periodo_contratacao"]');
+            const txt = otherInput && otherInput.value.trim() ? otherInput.value.trim() : '';
+            if (txt) {
+                appendHidden(form, FORM_ENTRIES.periodo_contratacao, '__other_option__');
+                appendHidden(form, FORM_ENTRIES.periodo_contratacao + '.other_option_response', txt);
+            }
+        } else {
+            appendHidden(form, FORM_ENTRIES.periodo_contratacao, periodoChecked.value);
+        }
+    }
 
-    fetch(GOOGLE_FORM_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: params.toString()
-    })
-    .then(() => goStep(8))
-    .catch(error => {
-        console.error('Erro ao enviar:', error);
-        alert('Ocorreu um erro ao enviar. Tente novamente.');
-    })
-    .finally(() => {
+    appendHidden(form, FORM_ENTRIES.frequencia_contato, getRadioValue('frequencia_contato'));
+    appendHidden(form, FORM_ENTRIES.cupom_indicacao, document.getElementById('cupom_indicacao').value.trim());
+    appendHidden(form, FORM_ENTRIES.info_adicional, document.getElementById('info_adicional').value.trim());
+    appendHidden(form, FORM_ENTRIES.declaracao, getRadioValue('declaracao'));
+
+    // ----- Submit pro iframe oculto -----
+    // Como target=hidden_form_iframe e o iframe está na mesma página,
+    // o navegador envia o POST normalmente (sem CORS) e a resposta
+    // do Google é descartada no iframe. Funciona em todos os browsers.
+    form.submit();
+
+    // Pequeno delay pra UX e pra dar tempo do POST sair antes de mudar de tela
+    setTimeout(() => {
+        goStep(8);
         btn.disabled = false;
         btn.textContent = 'Enviar Formulário ✓';
-    });
+    }, 800);
 }
 </script>
 </body>
