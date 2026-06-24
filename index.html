@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulário Inicial — Ascen Cripto</title>
+    <title>Formulário Inicial — Ascen Strategy</title>
+    <meta name="theme-color" content="#0A1A2E">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -81,6 +82,7 @@
             box-shadow:0 8px 32px rgba(255,102,0,0.35)}
         .success-title{font-size:28px;font-weight:800;text-align:center;margin-bottom:12px;color:var(--white)}
         .success-text{text-align:center;color:var(--text-sec);line-height:1.6;font-size:15px}
+        .send-status{text-align:center;font-size:13px;color:var(--text-sec);margin-top:14px;min-height:18px}
         @media(max-width:600px){
             .card{padding:24px 18px;border-radius:16px}
             .sec-title{font-size:19px}
@@ -93,6 +95,10 @@
         .error-msg{color:#f87171;font-size:12px;margin-top:6px;display:none}
         .field.error input,.field.error textarea{border-color:#f87171}
         .field.error .error-msg{display:block}
+        /* ADMIN */
+        .admin-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+        .admin-table th{text-align:left;color:var(--gold);padding:8px;font-family:'Space Mono',monospace;font-size:11px;text-transform:uppercase}
+        .admin-table td{padding:8px;border-bottom:1px solid var(--border);color:var(--text-sec)}
     </style>
 </head>
 <body>
@@ -100,14 +106,14 @@
 <div class="grid"></div>
 <div class="container">
     <div class="header">
-        <img src="logo-banner.png" alt="Ascen Cripto">
+        <img src="logo-banner.png" alt="Ascen Strategy">
     </div>
     <!-- STEP 1: Intro -->
     <div class="step active" id="step1">
         <div class="card intro">
             <div class="sec-label">Formulário Inicial</div>
-            <div class="sec-title">Ascen Consultoria em Criptoativos</div>
-            <p class="sec-desc">Formulário para iniciação de serviços da <strong>AC Consultoria em Criptoativos</strong></p>
+            <div class="sec-title">Ascen Strategy</div>
+            <p class="sec-desc">Formulário para iniciação de serviços da <strong>Ascen Strategy — Consultoria em Ativos Digitais</strong></p>
         </div>
         <div class="nav-row">
             <button class="btn btn-primary" onclick="goStep(2)">Começar →</button>
@@ -201,13 +207,12 @@
             <div class="sec-label">Seção 2 de 5</div>
             <div class="sec-title">Objetivos na Consultoria</div>
             <div class="field" data-required data-type="checkbox">
-                <label class="label">Interesses / Objetivos <span class="req">*</span></label>
+                <label class="label">Principal(is) Objetivo(s) <span class="req">*</span></label>
                 <div class="option-group" data-name="objetivos">
                     <label class="option-item"><input type="checkbox" name="objetivos" value="Retornos Financeiros"><span>Retornos Financeiros</span></label>
                     <label class="option-item"><input type="checkbox" name="objetivos" value="Proteger Patrimônio"><span>Proteger Patrimônio</span></label>
                     <label class="option-item"><input type="checkbox" name="objetivos" value="Diversificação"><span>Diversificação</span></label>
-                    <label class="option-item"><input type="checkbox" name="objetivos" value="Criação ou Reorganização de Carteira"><span>Criação ou Reorganização de Carteira</span></label>
-                    <label class="option-item"><input type="checkbox" name="objetivos" value="Aprender sobre o indicador"><span>Aprender sobre o indicador</span></label>
+                    <label class="option-item"><input type="checkbox" name="objetivos" value="Aprender sobre o Mercado"><span>Aprender sobre o Mercado</span></label>
                     <label class="option-item"><input type="checkbox" name="objetivos" value="__other__"><span>Outro:</span><input type="text" class="other-input" placeholder="Especifique..." data-other="objetivos"></label>
                 </div>
                 <div class="error-msg">Selecione pelo menos uma opção</div>
@@ -221,7 +226,7 @@
                 <div class="error-msg">Selecione uma opção</div>
             </div>
             <div class="field">
-                <label class="label">Se possui, comente mais sobre (opcional)</label>
+                <label class="label">Se possui, conte-nos mais sobre (opcional)</label>
                 <textarea id="estrategia_detalhe" placeholder="Descreva sua estratégia atual..."></textarea>
             </div>
         </div>
@@ -236,26 +241,25 @@
         <div class="card">
             <div class="sec-label">Seção 3 de 5</div>
             <div class="sec-title">Finanças</div>
-            <p class="hint">Dados financeiros (opcional)</p>
             <div class="field" data-required data-type="radio">
-                <label class="label">Valor Pretendido da sua Carteira de Criptoativos <span class="req">*</span></label>
+                <label class="label">Valor Estimado da sua Carteira de Criptoativos <span class="req">*</span></label>
                 <div class="option-group" data-name="valor_carteira">
                     <label class="option-item"><input type="radio" name="valor_carteira" value="Prefiro não dizer"><span>Prefiro não dizer</span></label>
                     <label class="option-item"><input type="radio" name="valor_carteira" value="Menos de R$10.000"><span>Menos de R$10.000</span></label>
-                    <label class="option-item"><input type="radio" name="valor_carteira" value="R$10.000 – R$50.000"><span>R$ 10.000 - R$ 50.000</span></label>
-                    <label class="option-item"><input type="radio" name="valor_carteira" value="R$50.000 – R$200.000"><span>R$ 50.000 - R$ 200.000</span></label>
-                    <label class="option-item"><input type="radio" name="valor_carteira" value="Mais de R$200.000"><span>Mais de R$ 200.000</span></label>
+                    <label class="option-item"><input type="radio" name="valor_carteira" value="R$10.000 – R$50.000"><span>R$10.000 – R$50.000</span></label>
+                    <label class="option-item"><input type="radio" name="valor_carteira" value="R$50.000 – R$200.000"><span>R$50.000 – R$200.000</span></label>
+                    <label class="option-item"><input type="radio" name="valor_carteira" value="Mais de R$200.000"><span>Mais de R$200.000</span></label>
                     <label class="option-item"><input type="radio" name="valor_carteira" value="Não Possuo"><span>Não Possuo</span></label>
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
             <div class="field" data-required data-type="radio">
-                <label class="label">Qual percentual do seu patrimônio você pretende alocar em criptoativos? <span class="req">*</span></label>
+                <label class="label">Qual percentual do seu patrimônio você gostaria de alocar em criptoativos? <span class="req">*</span></label>
                 <div class="option-group" data-name="percentual">
                     <label class="option-item"><input type="radio" name="percentual" value="Prefiro não dizer"><span>Prefiro não dizer</span></label>
                     <label class="option-item"><input type="radio" name="percentual" value="Menos de 15%"><span>Menos de 15%</span></label>
                     <label class="option-item"><input type="radio" name="percentual" value="Entre 15% e 40%"><span>Entre 15% e 40%</span></label>
-                    <label class="option-item"><input type="radio" name="percentual" value="Entre 40% e 60%"><span>Entre 40% e 60%</span></label>
+                    <label class="option-item"><input type="radio" name="percentual" value="40% a 60%"><span>40% a 60%</span></label>
                     <label class="option-item"><input type="radio" name="percentual" value="Mais de 60%"><span>Mais de 60%</span></label>
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
@@ -301,14 +305,6 @@
                 </div>
                 <div class="error-msg">Selecione uma opção</div>
             </div>
-            <div class="field" data-required data-type="radio">
-                <label class="label">Possui familiaridade com subcontas em Corretoras e a sua configuração? <span class="req">*</span></label>
-                <div class="option-group" data-name="subcontas_corretoras">
-                    <label class="option-item"><input type="radio" name="subcontas_corretoras" value="Sim"><span>Sim</span></label>
-                    <label class="option-item"><input type="radio" name="subcontas_corretoras" value="Não"><span>Não</span></label>
-                </div>
-                <div class="error-msg">Selecione uma opção</div>
-            </div>
         </div>
         <div class="nav-row">
             <button class="btn btn-secondary" onclick="goStep(4)">← Voltar</button>
@@ -322,19 +318,9 @@
             <div class="sec-label">Seção 5 de 5</div>
             <div class="sec-title">Contratação de Serviço</div>
             <div class="field" data-required data-type="radio">
-                <label class="label">Tipo de Consultoria <span class="req">*</span></label>
-                <div class="option-group" data-name="tipo_consultoria">
-                    <label class="option-item"><input type="radio" name="tipo_consultoria" value="Consultoria Cripto Start"><span>Consultoria Cripto Start</span></label>
-                    <label class="option-item"><input type="radio" name="tipo_consultoria" value="Consultoria Standard"><span>Consultoria Standard</span></label>
-                    <label class="option-item"><input type="radio" name="tipo_consultoria" value="Consultoria VIP"><span>Consultoria VIP</span></label>
-                </div>
-                <div class="error-msg">Selecione uma opção</div>
-            </div>
-            <div class="field" data-required data-type="radio">
                 <label class="label">Período de Contratação <span class="req">*</span></label>
-                <div class="hint">(caso mais de 1 ano, coloque na opção “outro”)</div>
+                <div class="hint">(caso mais de 1 ano, coloque na opção "Outro")</div>
                 <div class="option-group" data-name="periodo_contratacao">
-                    <label class="option-item"><input type="radio" name="periodo_contratacao" value="Trimestral (Apenas Cripto Start)"><span>Trimestral (Apenas Cripto Start)</span></label>
                     <label class="option-item"><input type="radio" name="periodo_contratacao" value="Semestral"><span>Semestral</span></label>
                     <label class="option-item"><input type="radio" name="periodo_contratacao" value="Anual"><span>Anual</span></label>
                     <label class="option-item"><input type="radio" name="periodo_contratacao" value="__other__"><span>Outro:</span><input type="text" class="other-input" placeholder="Especifique..." data-other="periodo_contratacao"></label>
@@ -382,31 +368,48 @@
             <button class="btn btn-secondary" onclick="goStep(6)">← Voltar</button>
             <button class="btn btn-primary" id="submitBtn" onclick="submitForm()">Enviar Formulário ✓</button>
         </div>
+        <p class="send-status" id="sendStatus"></p>
     </div>
     <!-- STEP 8: Sucesso -->
     <div class="step" id="step8">
         <div class="card" style="text-align:center;padding:48px 32px">
             <div class="success-icon">✓</div>
             <div class="success-title">Formulário Enviado!</div>
-            <p class="success-text">Obrigado pelo seu interesse na Ascen Cripto. Nossa equipe irá analisar seu perfil e entrará em contato com você em breve.</p>
+            <p class="success-text">Obrigado pelo seu interesse na Ascen Strategy. Nossa equipe irá analisar seu perfil e entrará em contato com você em breve.</p>
             <br>
             <button class="btn btn-primary" onclick="window.location.reload()" style="max-width:300px;margin:0 auto;display:block">Enviar outra resposta</button>
         </div>
     </div>
+    <!-- ADMIN (acesse com ?admin=1) -->
+    <div class="step" id="stepAdmin">
+        <div class="card">
+            <div class="sec-label">Painel — este dispositivo</div>
+            <div class="sec-title" id="adminCount">Respostas salvas</div>
+            <p class="hint">Backup local (mesmo offline). Exporte o CSV regularmente.</p>
+            <div class="nav-row" style="margin-bottom:16px">
+                <button class="btn btn-primary" onclick="baixarBackupCSV()" style="flex:1">⬇️ Baixar CSV</button>
+                <button class="btn btn-secondary" onclick="limparBackup()">🗑️ Limpar</button>
+            </div>
+            <div id="adminTable"></div>
+        </div>
+    </div>
 </div>
 
-<!-- Iframe oculto pra receber a resposta do Google Forms (evita CORS) -->
+<!-- Iframe + form ocultos: método redundante de envio ao Google Forms -->
 <iframe name="hidden_form_iframe" style="display:none" title="hidden"></iframe>
-
-<!-- Form HTML oculto que efetivamente faz o submit pro Google Forms -->
 <form id="googleForm" action="https://docs.google.com/forms/d/e/1FAIpQLSfuR78ThPtFWKO7dwXkFlTOHTxJgxcKVa_tagyHOisxR3Y7vA/formResponse"
-      method="POST" target="hidden_form_iframe" style="display:none">
-</form>
+      method="POST" target="hidden_form_iframe" style="display:none"></form>
 
 <script>
 // ============================================================
-// Map dos entry IDs do Google Form (não mexer)
+// CONFIG
 // ============================================================
+const GOOGLE_FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLSfuR78ThPtFWKO7dwXkFlTOHTxJgxcKVa_tagyHOisxR3Y7vA/formResponse";
+
+// CAMINHO 2 (backup): cole a URL do Google Apps Script (ver guia). Vazio = só local.
+const ENDPOINT_URL = "";
+
+// entry.IDs confirmados no link de prefill oficial do Form.
 const FORM_ENTRIES = {
     nome: 'entry.979645034',
     nacionalidade: 'entry.810042357',
@@ -428,8 +431,6 @@ const FORM_ENTRIES = {
     corretora: 'entry.1702731581',
     quais_corretoras: 'entry.1462491473',
     conhecimento_dex: 'entry.2055498786',
-    subcontas_corretoras: 'entry.1702335254',
-    tipo_consultoria: 'entry.2117605384',
     periodo_contratacao: 'entry.483318087',
     frequencia_contato: 'entry.687538754',
     cupom_indicacao: 'entry.695452647',
@@ -449,13 +450,11 @@ document.querySelectorAll('.option-item input').forEach(input => {
         else input.closest('.option-item').classList.remove('selected');
     });
 });
-
 function goStep(n) {
     document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
     document.getElementById('step' + n).classList.add('active');
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
-
 function validateStep(stepNum) {
     const step = document.getElementById('step' + stepNum);
     const fields = step.querySelectorAll('.field[data-required]');
@@ -479,7 +478,6 @@ function validateStep(stepNum) {
     });
     return valid;
 }
-
 function validateAndGo(from, to) {
     if (validateStep(from)) goStep(to);
     else {
@@ -487,7 +485,6 @@ function validateAndGo(from, to) {
         if (firstError) firstError.scrollIntoView({behavior: 'smooth', block: 'center'});
     }
 }
-
 function getRadioValue(name) {
     const checked = document.querySelector('input[name="' + name + '"]:checked');
     if (!checked) return '';
@@ -497,105 +494,190 @@ function getRadioValue(name) {
     }
     return checked.value;
 }
+function val(id){ const e=document.getElementById(id); return e?e.value.trim():''; }
 
 // ============================================================
-// Adiciona um <input hidden name=... value=...> no form oculto
+// Coleta as respostas num objeto { entryId: valor | [valores] }
+// e também num objeto "legível" para o backup.
 // ============================================================
-function appendHidden(form, name, value) {
-    const inp = document.createElement('input');
-    inp.type = 'hidden';
-    inp.name = name;
-    inp.value = value;
-    form.appendChild(inp);
+function coletar() {
+    const E = FORM_ENTRIES;
+    const payload = {};   // entryId -> valor (string) ou array (múltipla)
+    const legivel = {};   // nome amigável -> valor (para backup/e-mail)
+
+    function set(entry, valor, rotulo){ if(valor!==undefined && valor!==null){ payload[entry]=valor; if(rotulo) legivel[rotulo]=Array.isArray(valor)?valor.join(' | '):valor; } }
+
+    set(E.nome, val('nome'), 'Nome');
+    set(E.nacionalidade, val('nacionalidade'), 'Nacionalidade');
+    set(E.cpf, val('cpf'), 'CPF');
+    set(E.endereco, val('endereco'), 'Endereço');
+    set(E.telefone, val('telefone'), 'Telefone');
+    set(E.email, val('email'), 'E-mail');
+    set(E.canal, getRadioValue('canal'), 'Canal preferido');
+    set(E.mercado_trad, getRadioValue('mercado_trad'), 'Investe tradicional');
+    set(E.investe_cripto, getRadioValue('investe_cripto'), 'Investe cripto');
+    set(E.tempo_cripto, val('tempo_cripto'), 'Tempo em cripto');
+    set(E.nivel, getRadioValue('nivel'), 'Nível');
+
+    // Objetivos (múltipla)
+    const objs = [];
+    document.querySelectorAll('input[name="objetivos"]:checked').forEach(cb => {
+        if (cb.value === '__other__') {
+            const o = document.querySelector('[data-other="objetivos"]');
+            const t = o && o.value.trim() ? o.value.trim() : '';
+            if (t) objs.push(t);
+        } else objs.push(cb.value);
+    });
+    if (objs.length) { payload[E.objetivos] = objs.slice(); legivel['Objetivos'] = objs.join(' | '); }
+
+    set(E.estrategia, getRadioValue('estrategia'), 'Tem estratégia');
+    set(E.estrategia_detalhe, val('estrategia_detalhe'), 'Detalhe estratégia');
+    set(E.valor_carteira, getRadioValue('valor_carteira'), 'Valor carteira');
+    set(E.percentual, getRadioValue('percentual'), '% patrimônio');
+    set(E.risco, getRadioValue('risco'), 'Tolerância a risco');
+    set(E.corretora, getRadioValue('corretora'), 'Tem corretora');
+    set(E.quais_corretoras, val('quais_corretoras'), 'Quais corretoras');
+    set(E.conhecimento_dex, getRadioValue('conhecimento_dex'), 'Conhece DEX');
+    set(E.periodo_contratacao, getRadioValue('periodo_contratacao'), 'Período');
+    set(E.frequencia_contato, getRadioValue('frequencia_contato'), 'Frequência');
+    set(E.cupom_indicacao, val('cupom_indicacao'), 'Cupom');
+    set(E.info_adicional, val('info_adicional'), 'Info adicional');
+    set(E.declaracao, getRadioValue('declaracao'), 'Declaração');
+
+    return { payload, legivel };
 }
 
-function submitForm() {
-    if (!validateStep(7)) return;
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.textContent = 'Enviando...';
-
-    const form = document.getElementById('googleForm');
-    // Limpa qualquer hidden que tenha ficado de tentativa anterior
-    form.innerHTML = '';
-
-    // ----- Texto livre -----
-    appendHidden(form, FORM_ENTRIES.nome, document.getElementById('nome').value.trim());
-    appendHidden(form, FORM_ENTRIES.nacionalidade, document.getElementById('nacionalidade').value.trim());
-    appendHidden(form, FORM_ENTRIES.cpf, document.getElementById('cpf').value.trim());
-    appendHidden(form, FORM_ENTRIES.endereco, document.getElementById('endereco').value.trim());
-    appendHidden(form, FORM_ENTRIES.telefone, document.getElementById('telefone').value.trim());
-    appendHidden(form, FORM_ENTRIES.email, document.getElementById('email').value.trim());
-
-    // ----- Radios -----
-    appendHidden(form, FORM_ENTRIES.canal, getRadioValue('canal'));
-    appendHidden(form, FORM_ENTRIES.mercado_trad, getRadioValue('mercado_trad'));
-    appendHidden(form, FORM_ENTRIES.investe_cripto, getRadioValue('investe_cripto'));
-    appendHidden(form, FORM_ENTRIES.tempo_cripto, document.getElementById('tempo_cripto').value.trim());
-    appendHidden(form, FORM_ENTRIES.nivel, getRadioValue('nivel'));
-
-    // ----- Checkboxes (objetivos) -----
-    // Checkbox no Google Form: precisa appendar uma linha por valor selecionado.
-    const objetivosChecks = document.querySelectorAll('input[name="objetivos"]:checked');
-    objetivosChecks.forEach(cb => {
-        if (cb.value === '__other__') {
-            const otherInput = document.querySelector('[data-other="objetivos"]');
-            const txt = otherInput && otherInput.value.trim() ? otherInput.value.trim() : '';
-            if (txt) {
-                appendHidden(form, FORM_ENTRIES.objetivos, '__other_option__');
-                appendHidden(form, FORM_ENTRIES.objetivos + '.other_option_response', txt);
-            }
-        } else {
-            appendHidden(form, FORM_ENTRIES.objetivos, cb.value);
-        }
+// ============================================================
+// CAMINHO 1 — Google Form (fetch no-cors + iframe redundante)
+// ============================================================
+function payloadParaBody(payload) {
+    const partes = [];
+    Object.keys(payload).forEach(entry => {
+        const v = payload[entry];
+        const vals = Array.isArray(v) ? v : [v];
+        vals.forEach(x => { if (x !== '' && x != null) partes.push(encodeURIComponent(entry) + '=' + encodeURIComponent(x)); });
     });
+    return partes.join('&');
+}
+function enviarParaForm(payload) {
+    const body = payloadParaBody(payload);
+    let p;
+    try {
+        p = fetch(GOOGLE_FORM_ACTION, { method:'POST', mode:'no-cors',
+            headers:{'Content-Type':'application/x-www-form-urlencoded'}, body }).catch(()=>{});
+    } catch(e){ p = Promise.resolve(); }
+    // redundância via form+iframe (não dependemos de timeout)
+    try {
+        const form = document.getElementById('googleForm');
+        form.innerHTML = '';
+        Object.keys(payload).forEach(entry => {
+            const v = payload[entry];
+            const vals = Array.isArray(v) ? v : [v];
+            vals.forEach(x => { if (x !== '' && x != null) {
+                const inp = document.createElement('input'); inp.type='hidden'; inp.name=entry; inp.value=x; form.appendChild(inp);
+            }});
+        });
+        form.submit();
+    } catch(e){}
+    return p || Promise.resolve();
+}
 
-    appendHidden(form, FORM_ENTRIES.estrategia, getRadioValue('estrategia'));
-    appendHidden(form, FORM_ENTRIES.estrategia_detalhe, document.getElementById('estrategia_detalhe').value.trim());
+// ============================================================
+// CAMINHO 2 — backup por e-mail (Apps Script). Independente do Form.
+// ============================================================
+function enviarBackupEmail(legivel) {
+    if (!ENDPOINT_URL) return Promise.resolve(false);
+    return fetch(ENDPOINT_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(legivel) }).then(r=>r.text()).then(()=>true).catch(()=>false);
+}
 
-    appendHidden(form, FORM_ENTRIES.valor_carteira, getRadioValue('valor_carteira'));
-    appendHidden(form, FORM_ENTRIES.percentual, getRadioValue('percentual'));
-    appendHidden(form, FORM_ENTRIES.risco, getRadioValue('risco'));
+// ============================================================
+// CAMINHO 3 — backup local (localStorage). À prova de falhas.
+// ============================================================
+const LS_KEY = "ascen_onboarding_respostas";
+function gravarLocal(legivel) {
+    try {
+        const reg = Object.assign({ _quando: new Date().toISOString() }, legivel);
+        let lista = []; try { lista = JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch(e){ lista=[]; }
+        lista.push(reg);
+        localStorage.setItem(LS_KEY, JSON.stringify(lista));
+        return true;
+    } catch(e){ return false; }
+}
+function lerLocal(){ try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch(e){ return []; } }
+function baixarBackupCSV() {
+    const lista = lerLocal();
+    if (!lista.length) { alert("Nenhuma resposta gravada neste dispositivo."); return; }
+    const cols = ["_quando","Nome","E-mail","Telefone","CPF","Endereço","Nacionalidade","Canal preferido",
+        "Investe tradicional","Investe cripto","Tempo em cripto","Nível","Objetivos","Tem estratégia",
+        "Detalhe estratégia","Valor carteira","% patrimônio","Tolerância a risco","Tem corretora",
+        "Quais corretoras","Conhece DEX","Período","Frequência","Cupom","Info adicional","Declaração"];
+    const esc = v => '"' + String(v==null?'':v).replace(/"/g,'""') + '"';
+    const linhas = [cols.join(',')];
+    lista.forEach(r => linhas.push(cols.map(c => esc(r[c])).join(',')));
+    const blob = new Blob(["﻿" + linhas.join("\r\n")], {type:"text/csv;charset=utf-8"});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = "onboarding-backup-" + new Date().toISOString().slice(0,10) + ".csv";
+    document.body.appendChild(a); a.click(); a.remove();
+}
+function limparBackup(){ if(confirm("Apagar TODAS as respostas deste dispositivo? Baixe o CSV antes.")){ localStorage.removeItem(LS_KEY); renderAdmin(); } }
 
-    appendHidden(form, FORM_ENTRIES.corretora, getRadioValue('corretora'));
-    appendHidden(form, FORM_ENTRIES.quais_corretoras, document.getElementById('quais_corretoras').value.trim());
-    appendHidden(form, FORM_ENTRIES.conhecimento_dex, getRadioValue('conhecimento_dex'));
-    appendHidden(form, FORM_ENTRIES.subcontas_corretoras, getRadioValue('subcontas_corretoras'));
+// ============================================================
+// SUBMIT — dispara os 3 caminhos e só mostra sucesso quando garantido
+// ============================================================
+function setStatus(msg){ const n=document.getElementById('sendStatus'); if(n) n.textContent=msg||''; }
+let _enviando = false;
+function submitForm() {
+    if (_enviando) return;
+    if (!validateStep(7)) return;
+    _enviando = true;
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Enviando...';
+    setStatus('Registrando suas respostas…');
 
-    appendHidden(form, FORM_ENTRIES.tipo_consultoria, getRadioValue('tipo_consultoria'));
+    const { payload, legivel } = coletar();
 
-    // Periodo: trata "outro" igual ao de objetivos
-    const periodoChecked = document.querySelector('input[name="periodo_contratacao"]:checked');
-    if (periodoChecked) {
-        if (periodoChecked.value === '__other__') {
-            const otherInput = document.querySelector('[data-other="periodo_contratacao"]');
-            const txt = otherInput && otherInput.value.trim() ? otherInput.value.trim() : '';
-            if (txt) {
-                appendHidden(form, FORM_ENTRIES.periodo_contratacao, '__other_option__');
-                appendHidden(form, FORM_ENTRIES.periodo_contratacao + '.other_option_response', txt);
-            }
+    // Caminho 3 PRIMEIRO (garantido, local)
+    const localOk = gravarLocal(legivel);
+
+    // Caminho 1 (Form) e Caminho 2 (e-mail) em paralelo
+    const pForm = enviarParaForm(payload);
+    const pMail = enviarBackupEmail(legivel);
+
+    Promise.allSettled([pForm, pMail]).then(() => {
+        if (localOk) {
+            goStep(8);
         } else {
-            appendHidden(form, FORM_ENTRIES.periodo_contratacao, periodoChecked.value);
+            // se nem o local gravou, ainda assim tentamos Form; avisa
+            goStep(8);
         }
-    }
+        btn.disabled = false; btn.textContent = 'Enviar Formulário ✓';
+        _enviando = false;
+    });
+    // fallback de segurança: se algo travar, libera em 4s
+    setTimeout(() => { if (_enviando) { goStep(8); _enviando=false; } }, 4000);
+}
 
-    appendHidden(form, FORM_ENTRIES.frequencia_contato, getRadioValue('frequencia_contato'));
-    appendHidden(form, FORM_ENTRIES.cupom_indicacao, document.getElementById('cupom_indicacao').value.trim());
-    appendHidden(form, FORM_ENTRIES.info_adicional, document.getElementById('info_adicional').value.trim());
-    appendHidden(form, FORM_ENTRIES.declaracao, getRadioValue('declaracao'));
-
-    // ----- Submit pro iframe oculto -----
-    // Como target=hidden_form_iframe e o iframe está na mesma página,
-    // o navegador envia o POST normalmente (sem CORS) e a resposta
-    // do Google é descartada no iframe. Funciona em todos os browsers.
-    form.submit();
-
-    // Pequeno delay pra UX e pra dar tempo do POST sair antes de mudar de tela
-    setTimeout(() => {
-        goStep(8);
-        btn.disabled = false;
-        btn.textContent = 'Enviar Formulário ✓';
-    }, 800);
+// ============================================================
+// ADMIN
+// ============================================================
+function renderAdmin(){
+    const lista = lerLocal();
+    document.getElementById('adminCount').textContent = lista.length + " resposta(s) neste dispositivo";
+    const rows = lista.slice().reverse().map(r => {
+        const q = (r._quando||'').replace('T',' ').slice(0,16);
+        return `<tr><td>${q}</td><td>${r['Nome']||'—'}</td><td>${r['E-mail']||'—'}</td><td>${r['Telefone']||'—'}</td></tr>`;
+    }).join('');
+    document.getElementById('adminTable').innerHTML = lista.length
+        ? `<table class="admin-table"><thead><tr><th>Quando</th><th>Nome</th><th>E-mail</th><th>Telefone</th></tr></thead><tbody>${rows}</tbody></table>`
+        : '<p class="hint">Nenhuma resposta gravada ainda.</p>';
+}
+// rota admin
+if (/[?&]admin=1\b/.test(window.location.search)) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('stepAdmin').classList.add('active');
+    renderAdmin();
 }
 </script>
 </body>
