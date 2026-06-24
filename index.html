@@ -407,7 +407,7 @@
 const GOOGLE_FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLSfuR78ThPtFWKO7dwXkFlTOHTxJgxcKVa_tagyHOisxR3Y7vA/formResponse";
 
 // CAMINHO 2 (backup): cole a URL do Google Apps Script (ver guia). Vazio = só local.
-const ENDPOINT_URL = "";
+const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzzpj04RTDdwkLuUS1BgZWhtSB4SM5e_PdVw_Emw4RpmaZxZf_AbQWYx4FvSYHv0SGTAQ/exec";
 
 // entry.IDs confirmados no link de prefill oficial do Form.
 const FORM_ENTRIES = {
@@ -675,8 +675,7 @@ function renderAdmin(){
 }
 // rota admin
 if (/[?&]admin=1\b/.test(window.location.search)) {
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-    document.getElementById('stepAdmin').classList.add('active');
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));    document.getElementById('stepAdmin').classList.add('active');
     renderAdmin();
 }
 </script>
