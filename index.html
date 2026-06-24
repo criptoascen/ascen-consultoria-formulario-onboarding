@@ -10,6 +10,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
         :root{
@@ -375,9 +376,12 @@
         <div class="card" style="text-align:center;padding:48px 32px">
             <div class="success-icon">✓</div>
             <div class="success-title">Formulário Enviado!</div>
-            <p class="success-text">Obrigado pelo seu interesse na Ascen Strategy. Nossa equipe irá analisar seu perfil e entrará em contato com você em breve.</p>
+            <p class="success-text">Obrigado pelo seu interesse na Ascen Strategy. Para concluir, <strong>clique no botão verde abaixo para nos enviar seus dados pelo WhatsApp</strong> — assim garantimos seu atendimento.</p>
             <br>
-            <button class="btn btn-primary" onclick="window.location.reload()" style="max-width:300px;margin:0 auto;display:block">Enviar outra resposta</button>
+            <a id="wppBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display:inline-flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#25D366,#16a34a);text-decoration:none;max-width:360px;margin:0 auto 14px">💬 Enviar meus dados no WhatsApp</a>
+            <br>
+            <button class="btn btn-secondary" onclick="gerarPDF()" style="max-width:360px;margin:0 auto 10px;display:block">📄 Baixar meu comprovante (PDF)</button>
+            <button class="btn btn-secondary" onclick="window.location.reload()" style="max-width:360px;margin:0 auto;display:block">↻ Enviar outra resposta</button>
         </div>
     </div>
     <!-- ADMIN (acesse com ?admin=1) -->
@@ -405,6 +409,12 @@
 // CONFIG
 // ============================================================
 const GOOGLE_FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLSfuR78ThPtFWKO7dwXkFlTOHTxJgxcKVa_tagyHOisxR3Y7vA/formResponse";
+
+// WhatsApp da empresa que recebe os onboardings (+55 11 91753-6554)
+const WHATSAPP_BASE = "https://wa.me/5511917536554";
+
+// Guarda a última resposta coletada (para PDF e WhatsApp na tela de sucesso)
+let _ultimaResposta = null;
 
 // CAMINHO 2 (backup): cole a URL do Google Apps Script (ver guia). Vazio = só local.
 const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzzpj04RTDdwkLuUS1BgZWhtSB4SM5e_PdVw_Emw4RpmaZxZf_AbQWYx4FvSYHv0SGTAQ/exec";
@@ -637,6 +647,8 @@ function submitForm() {
     setStatus('Registrando suas respostas…');
 
     const { payload, legivel } = coletar();
+    _ultimaResposta = legivel;            // guarda p/ PDF e WhatsApp
+    prepararCTAs(legivel);                // monta o link do WhatsApp na tela de sucesso
 
     // Caminho 3 PRIMEIRO (garantido, local)
     const localOk = gravarLocal(legivel);
@@ -646,17 +658,68 @@ function submitForm() {
     const pMail = enviarBackupEmail(legivel);
 
     Promise.allSettled([pForm, pMail]).then(() => {
-        if (localOk) {
-            goStep(8);
-        } else {
-            // se nem o local gravou, ainda assim tentamos Form; avisa
-            goStep(8);
-        }
+        goStep(8);
         btn.disabled = false; btn.textContent = 'Enviar Formulário ✓';
         _enviando = false;
     });
     // fallback de segurança: se algo travar, libera em 4s
     setTimeout(() => { if (_enviando) { goStep(8); _enviando=false; } }, 4000);
+}
+
+// Ordem amigável dos campos para PDF e WhatsApp
+const CAMPOS_ORDEM = ["Nome","E-mail","Telefone","CPF","Endereço","Nacionalidade","Canal preferido",
+    "Investe tradicional","Investe cripto","Tempo em cripto","Nível","Objetivos","Tem estratégia",
+    "Detalhe estratégia","Valor carteira","% patrimônio","Tolerância a risco","Tem corretora",
+    "Quais corretoras","Conhece DEX","Período","Frequência","Cupom","Info adicional","Declaração"];
+
+// Monta o link do WhatsApp com TODOS os dados no texto (garante que chega até a empresa).
+function prepararCTAs(legivel) {
+    let msg = "🟢 *Novo Onboarding — Ascen Strategy*\n\n";
+    CAMPOS_ORDEM.forEach(c => { if (legivel[c]) msg += "*" + c + ":* " + legivel[c] + "\n"; });
+    msg += "\nSegue meu cadastro para iniciar o atendimento.";
+    const href = WHATSAPP_BASE + "?text=" + encodeURIComponent(msg);
+    const btn = document.getElementById('wppBtn');
+    if (btn) btn.href = href;
+}
+
+// Gera um PDF de comprovante com todos os dados.
+function gerarPDF() {
+    const d = _ultimaResposta;
+    if (!d || !window.jspdf) { return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" });
+    const W = 210;
+    doc.setFillColor(10,26,46); doc.rect(0,0,W,40,"F");
+    doc.setTextColor(255,102,0); doc.setFont("helvetica","bold"); doc.setFontSize(22);
+    doc.text("ASCEN STRATEGY", 20, 20);
+    doc.setTextColor(201,169,110); doc.setFontSize(10); doc.setFont("helvetica","normal");
+    doc.text("Comprovante de Onboarding — Consultoria em Ativos Digitais", 20, 28);
+    doc.setTextColor(255,255,255); doc.setFontSize(9);
+    doc.text("Emitido em: " + new Date().toLocaleString("pt-BR"), 20, 35);
+    let y = 52;
+    doc.setTextColor(40,40,40); doc.setFont("helvetica","bold"); doc.setFontSize(13);
+    doc.text("Dados do cadastro", 20, y); y += 8;
+    doc.setFontSize(10);
+    CAMPOS_ORDEM.forEach(c => {
+        if (!d[c]) return;
+        if (y > 275) { doc.addPage(); y = 20; }
+        doc.setFont("helvetica","bold"); doc.setTextColor(70,70,70);
+        const rotulo = c + ": ";
+        doc.text(rotulo, 20, y);
+        const offset = doc.getTextWidth(rotulo);
+        doc.setFont("helvetica","normal"); doc.setTextColor(20,20,20);
+        const linhas = doc.splitTextToSize(String(d[c]), W - 40 - offset);
+        doc.text(linhas, 20 + offset, y);
+        y += Math.max(6, linhas.length * 5.5);
+    });
+    y += 6;
+    if (y > 270) { doc.addPage(); y = 20; }
+    doc.setDrawColor(210,210,210); doc.line(20, y, W-20, y); y += 7;
+    doc.setFont("helvetica","italic"); doc.setFontSize(8); doc.setTextColor(120,120,120);
+    const aviso = "Comprovante gerado automaticamente. Para concluir seu atendimento, envie estes dados à Ascen Strategy pelo WhatsApp +55 11 91753-6554.";
+    doc.text(doc.splitTextToSize(aviso, W-40), 20, y);
+    const nome = (d["Nome"] || "ascen").toLowerCase().replace(/\s+/g,"-");
+    doc.save("onboarding-" + nome + ".pdf");
 }
 
 // ============================================================
@@ -675,7 +738,8 @@ function renderAdmin(){
 }
 // rota admin
 if (/[?&]admin=1\b/.test(window.location.search)) {
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));    document.getElementById('stepAdmin').classList.add('active');
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('stepAdmin').classList.add('active');
     renderAdmin();
 }
 </script>
