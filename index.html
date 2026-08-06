@@ -609,14 +609,13 @@ function payloadParaBody(payload) {
     });
     return partes.join('&');
 }
-function enviarParaForm(payload) {
-    const body = payloadParaBody(payload);
-    let p;
+function enviarParaFormFetch(payload) {
     try {
-        p = fetch(GOOGLE_FORM_ACTION, { method:'POST', mode:'no-cors',
-            headers:{'Content-Type':'application/x-www-form-urlencoded'}, body }).catch(()=>{});
-    } catch(e){ p = Promise.resolve(); }
-    // redundância via form+iframe (não dependemos de timeout)
+        return fetch(GOOGLE_FORM_ACTION, { method:'POST', mode:'no-cors',
+            headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: payloadParaBody(payload) }).catch(()=>{});
+    } catch(e){ return Promise.resolve(); }
+}
+function enviarParaFormIframe(payload) {
     try {
         const form = document.getElementById('googleForm');
         form.innerHTML = '';
@@ -629,7 +628,6 @@ function enviarParaForm(payload) {
         });
         form.submit();
     } catch(e){}
-    return p || Promise.resolve();
 }
 
 // ============================================================
@@ -670,7 +668,7 @@ function processarFila() {
     const restantes = [];
     let cadeia = Promise.resolve();
     fila.forEach(reg => {
-        cadeia = cadeia.then(() => enviarParaScript(reg, 15000).then(resp => {
+        cadeia = cadeia.then(() => enviarParaScript(reg, 25000).then(resp => {
             if (!resp.ok) {
                 reg._tentativas = (reg._tentativas || 0) + 1;
                 if (reg._tentativas < 12) restantes.push(reg);   // desiste após 12 tentativas
@@ -743,7 +741,27 @@ function restaurarRascunho() {
             if (el && !el.checked) { el.checked = true; el.dispatchEvent(new Event('change')); }
         });
         if (r.passo && r.passo >= 2 && r.passo <= 7) goStep(r.passo);
+        mostrarAvisoRascunho();
     } catch (e) {}
+}
+// Aparelho compartilhado: avisa que retomou e oferece recomeço limpo
+function mostrarAvisoRascunho() {
+    if (document.getElementById('avisoRascunho')) return;
+    const div = document.createElement('div');
+    div.id = 'avisoRascunho';
+    div.className = 'card';
+    div.style.cssText = 'padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap';
+    const span = document.createElement('span');
+    span.style.cssText = 'font-size:13px;color:var(--text-sec)';
+    span.textContent = 'Retomamos seu preenchimento de onde parou.';
+    const b = document.createElement('button');
+    b.className = 'btn btn-secondary';
+    b.style.cssText = 'padding:10px 16px;font-size:13px';
+    b.textContent = '↺ Começar do zero';
+    b.onclick = function(){ limparRascunho(); window.location.reload(); };
+    div.appendChild(span); div.appendChild(b);
+    const header = document.querySelector('.header');
+    if (header && header.parentNode) header.parentNode.insertBefore(div, header.nextSibling);
 }
 // qualquer digitação/marcação atualiza o rascunho
 document.addEventListener('input', ev => { const t = ev.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) salvarRascunho(); });
@@ -796,7 +814,9 @@ function submitForm() {
     if (!validateStep(7)) return;
     _enviando = true;
     const btn = document.getElementById('submitBtn');
+    const btnVoltar = document.querySelector('#step7 .btn-secondary');
     btn.disabled = true; btn.textContent = 'Enviando...';
+    if (btnVoltar) btnVoltar.disabled = true;
     setStatus('Registrando suas respostas…');
 
     const { payload, legivel } = coletar();
@@ -826,30 +846,38 @@ function submitForm() {
         montarTelaSucesso(confirmado);
         goStep(8);
         limparRascunho();
+        const aviso = document.getElementById('avisoRascunho');
+        if (aviso) aviso.remove();
         setStatus('');
         btn.disabled = false; btn.textContent = 'Enviar Formulário ✓';
+        if (btnVoltar) btnVoltar.disabled = false;
         _enviando = false;
     }
     function fallbackSemConfirmacao() {
-        enviarParaForm(payload);          // envio direto ao Forms (cego, mas formato correto)
-        reg.form_ja_enviado = true;
-        atualizarNaFila(reg);             // fica na fila p/ reenvio automático (dedupe pelo id)
-        concluir(false);
+        enviarParaFormIframe(payload);    // redundância extra ao Forms (o fetch já foi no início)
+        concluir(false);                  // reg já está na fila p/ reenvio automático
     }
 
-    // 2) Caminho principal: Apps Script → planilha + e-mail + repasse ao Forms
-    enviarParaScript(reg, 12000).then(resp => {
+    // 2) Google Forms direto do site (1x, cego) — o servidor fica leve e o
+    //    Forms recebe mesmo que o Apps Script esteja lento
+    enviarParaFormFetch(payload);
+    reg.form_ja_enviado = true;
+    atualizarNaFila(reg);
+
+    // 3) Caminho principal: Apps Script → planilha + e-mail, com confirmação real.
+    //    Timeout folgado: o Apps Script oscila entre 3s e 20s+ (medido em produção).
+    enviarParaScript(reg, 25000).then(resp => {
         if (finalizado) return;           // trava de segurança já assumiu
-        if (resp.ok) {
-            if (resp.form !== 'ok') enviarParaForm(payload);   // planilha ok; garante o Forms daqui
-            concluir(true);
-        } else {
-            fallbackSemConfirmacao();
-        }
+        if (resp.ok) concluir(true);
+        else fallbackSemConfirmacao();
     });
 
+    // feedback pro cliente não achar que travou
+    setTimeout(() => { if (!finalizado) setStatus('Quase lá — confirmando seu registro com segurança…'); }, 8000);
+    setTimeout(() => { if (!finalizado) setStatus('Só mais um instante…'); }, 18000);
+
     // trava de segurança: nunca deixa o cliente preso na tela de envio
-    setTimeout(() => { if (!finalizado) fallbackSemConfirmacao(); }, 15000);
+    setTimeout(() => { if (!finalizado) fallbackSemConfirmacao(); }, 30000);
 }
 
 // Ordem amigável dos campos para PDF e WhatsApp
@@ -860,8 +888,11 @@ const CAMPOS_ORDEM = ["Nome","E-mail","Telefone","CPF","Endereço","Nacionalidad
 
 // Monta o link do WhatsApp com TODOS os dados no texto (garante que chega até a empresa).
 function prepararCTAs(legivel) {
+    // corta campos muito longos: URL gigante impede o WhatsApp de abrir em
+    // alguns aparelhos (o cadastro completo já foi pelos outros caminhos)
+    const corte = v => { v = String(v); return v.length > 300 ? v.slice(0, 300) + "… (resto já registrado)" : v; };
     let msg = "🟢 *Novo Onboarding — Ascen Strategy*\n\n";
-    CAMPOS_ORDEM.forEach(c => { if (legivel[c]) msg += "*" + c + ":* " + legivel[c] + "\n"; });
+    CAMPOS_ORDEM.forEach(c => { if (legivel[c]) msg += "*" + c + ":* " + corte(legivel[c]) + "\n"; });
     msg += "\nSegue meu cadastro para iniciar o atendimento.";
     const href = WHATSAPP_BASE + "?text=" + encodeURIComponent(msg);
     const btn = document.getElementById('wppBtn');
@@ -871,7 +902,8 @@ function prepararCTAs(legivel) {
 // Gera um PDF de comprovante com todos os dados.
 function gerarPDF() {
     const d = _ultimaResposta;
-    if (!d || !window.jspdf) { return; }
+    if (!d) { return; }
+    if (!window.jspdf) { alert('O gerador de PDF não carregou (conexão instável). Seus dados já foram registrados — use o botão do WhatsApp.'); return; }
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" });
     const W = 210;
@@ -916,9 +948,10 @@ function renderAdmin(){
     const pendentes = lerFila().length;
     document.getElementById('adminCount').textContent = lista.length + " resposta(s) neste dispositivo" +
         (pendentes ? " — " + pendentes + " aguardando reenvio" : "");
+    const eh = v => String(v==null?'—':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     const rows = lista.slice().reverse().map(r => {
         const q = (r._quando||'').replace('T',' ').slice(0,16);
-        return `<tr><td>${q}</td><td>${r['Nome']||'—'}</td><td>${r['E-mail']||'—'}</td><td>${r['Telefone']||'—'}</td></tr>`;
+        return `<tr><td>${eh(q)}</td><td>${eh(r['Nome'])}</td><td>${eh(r['E-mail'])}</td><td>${eh(r['Telefone'])}</td></tr>`;
     }).join('');
     document.getElementById('adminTable').innerHTML = lista.length
         ? `<table class="admin-table"><thead><tr><th>Quando</th><th>Nome</th><th>E-mail</th><th>Telefone</th></tr></thead><tbody>${rows}</tbody></table>`

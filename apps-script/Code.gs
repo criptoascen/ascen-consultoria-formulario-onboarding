@@ -1,11 +1,16 @@
 /************************************************************
- * Ascen Strategy — Onboarding: registro blindado (v2)
+ * Ascen Strategy — Onboarding: registro blindado (v3)
  *
  * Recebe cada cadastro do site e:
  *   1. grava numa planilha Google (criada automaticamente na 1ª vez)
  *   2. avisa por e-mail o dono do script
- *   3. repassa a resposta ao Google Forms oficial (formato correto)
+ *   3. repassa ao Google Forms SÓ se o site não tiver enviado (raro)
  *   4. devolve confirmação real ({ok:true}) para o site
+ *
+ * v3: lock cobre apenas dedupe+gravação (e-mail e repasse ficam fora),
+ * então rajadas de cadastros simultâneos não cascateiam latência.
+ * Também: proteção contra injeção de fórmula na planilha e
+ * cabeçalho só é criado em aba vazia.
  *
  * Deduplica pelo id do cadastro — reenvios automáticos do site
  * não criam linha nem e-mail duplicados.
@@ -17,55 +22,61 @@ const CAMPOS = ["Nome","E-mail","Telefone","CPF","Endereço","Nacionalidade","Ca
   "Investe tradicional","Investe cripto","Tempo em cripto","Nível","Objetivos","Tem estratégia",
   "Detalhe estratégia","Valor carteira","% patrimônio","Tolerância a risco","Tem corretora",
   "Quais corretoras","Conhece DEX","Período","Frequência","Cupom","Info adicional","Declaração"];
+const COL_FORMS = CAMPOS.length + 3;   // ID + Recebido em + campos + coluna Forms
 
 function doGet() {
-  return _json({ ok: true, ping: true, servico: "ascen-onboarding", versao: 2 });
+  return _json({ ok: true, ping: true, servico: "ascen-onboarding", versao: 3 });
 }
 
 function doPost(e) {
+  let dados = {};
+  try { dados = JSON.parse(e.postData.contents); } catch (err) { return _json({ ok: false, erro: "json" }); }
+
+  // Compatibilidade: a versão antiga do site mandava só o objeto "legível" plano
+  const legivel = dados.legivel || dados;
+  const id = dados.id || ("sem-id-" + new Date().getTime());
+  const quando = dados.quando || new Date().toISOString();
+  const precisaRepassar = !!(dados.payload && !dados.form_ja_enviado);
+
+  // ---- Seção crítica CURTA: dedupe + gravação (nada de rede/e-mail aqui) ----
   const lock = LockService.getScriptLock();
-  lock.waitLock(20000);
+  let aba, minhaLinha = 0;
   try {
-    let dados = {};
-    try { dados = JSON.parse(e.postData.contents); } catch (err) { return _json({ ok: false, erro: "json" }); }
-
-    // Compatibilidade: a versão antiga do site mandava só o objeto "legível" plano
-    const legivel = dados.legivel || dados;
-    const id = dados.id || ("sem-id-" + new Date().getTime());
-    const quando = dados.quando || new Date().toISOString();
-
-    const aba = _aba();
-
-    // Dedupe: reenvio do mesmo cadastro responde ok sem gravar de novo
+    lock.waitLock(25000);
+    aba = _aba();
     const ids = aba.getRange(1, 1, Math.max(aba.getLastRow(), 1), 1).getValues().map(function (r) { return String(r[0]); });
-    if (ids.indexOf(id) !== -1) return _json({ ok: true, duplicado: true, id: id });
-
-    // Repasse ao Google Forms (só se o site ainda não enviou direto)
-    let formStatus = "pulado";
-    if (dados.payload && !dados.form_ja_enviado) {
-      formStatus = _repassarAoForms(dados.payload);
+    if (ids.indexOf(id) !== -1) {
+      lock.releaseLock();
+      return _json({ ok: true, duplicado: true, id: id });
     }
-
-    // Planilha (registro principal)
-    const linha = [id, quando].concat(CAMPOS.map(function (c) { return legivel[c] || ""; })).concat([formStatus]);
+    const linha = [id, quando].concat(CAMPOS.map(function (c) { return _celula(legivel[c]); }))
+      .concat([precisaRepassar ? "pendente" : "site"]);
     aba.appendRow(linha);
-
-    // E-mail de aviso para o dono do script
-    let emailStatus = "ok";
-    try {
-      MailApp.sendEmail({
-        to: Session.getEffectiveUser().getEmail(),
-        subject: "🟢 Novo Onboarding — " + (legivel["Nome"] || "sem nome"),
-        body: _corpoEmail(legivel, id, quando, formStatus)
-      });
-    } catch (err) { emailStatus = "falhou"; }
-
-    return _json({ ok: true, id: id, form: formStatus, email: emailStatus });
-  } catch (err) {
-    return _json({ ok: false, erro: String(err) });
-  } finally {
+    minhaLinha = aba.getLastRow();
     lock.releaseLock();
+  } catch (err) {
+    try { lock.releaseLock(); } catch (e2) {}
+    return _json({ ok: false, erro: String(err) });
   }
+
+  // ---- Fora do lock: repasse ao Forms (raro) e e-mail de aviso ----
+  let formStatus = "site";
+  if (precisaRepassar) {
+    formStatus = _repassarAoForms(dados.payload);
+    try { aba.getRange(minhaLinha, COL_FORMS).setValue(formStatus); } catch (e3) {}
+  }
+
+  let emailStatus = "ok";
+  try {
+    const alerta = (formStatus.indexOf("falhou") === 0) ? "⚠️ " : "";
+    MailApp.sendEmail({
+      to: Session.getEffectiveUser().getEmail(),
+      subject: alerta + "🟢 Novo Onboarding — " + (legivel["Nome"] || "sem nome"),
+      body: _corpoEmail(legivel, id, quando, formStatus)
+    });
+  } catch (err) { emailStatus = "falhou"; }
+
+  return _json({ ok: true, id: id, form: formStatus, email: emailStatus });
 }
 
 function _aba() {
@@ -83,10 +94,19 @@ function _aba() {
   if (!aba) {
     aba = plan.getSheets()[0];
     aba.setName("Cadastros");
+  }
+  // cabeçalho só em aba vazia — nunca no meio dos dados
+  if (aba.getLastRow() === 0) {
     aba.appendRow(["ID", "Recebido em"].concat(CAMPOS).concat(["Forms"]));
     aba.setFrozenRows(1);
   }
   return aba;
+}
+
+// Anti-injeção de fórmula: valor começando com = + - @ vira texto puro
+function _celula(v) {
+  v = String(v === null || v === undefined ? "" : v);
+  return /^[=+\-@]/.test(v) ? "'" + v : v;
 }
 
 function _repassarAoForms(payload) {
@@ -115,7 +135,11 @@ function _repassarAoForms(payload) {
 function _corpoEmail(legivel, id, quando, formStatus) {
   let corpo = "Novo cadastro de onboarding recebido.\n\n";
   CAMPOS.forEach(function (c) { if (legivel[c]) corpo += c + ": " + legivel[c] + "\n"; });
-  corpo += "\n---\nID: " + id + "\nRecebido em: " + quando + "\nRepasse ao Google Forms: " + formStatus;
+  corpo += "\n---\nID: " + id + "\nRecebido em: " + quando + "\nGoogle Forms: " + formStatus;
+  if (formStatus.indexOf("falhou") === 0) {
+    corpo += "\n⚠️ O repasse ao Google Forms falhou — o cadastro está seguro na planilha. " +
+             "Se isso se repetir, o Form pode ter sido editado (IDs das perguntas mudam).";
+  }
   try {
     const planId = PropertiesService.getScriptProperties().getProperty("PLANILHA_ID");
     if (planId) corpo += "\nPlanilha: " + SpreadsheetApp.openById(planId).getUrl();

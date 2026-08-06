@@ -1,18 +1,17 @@
-# Como atualizar o Apps Script (5 minutos)
+# Como atualizar o Apps Script (2 minutos)
 
-O site agora espera que o Apps Script confirme o registro de verdade. Para isso,
-o script precisa ser trocado pela versão nova ([Code.gs](Code.gs) nesta pasta).
+Quando o [Code.gs](Code.gs) desta pasta for atualizado, é preciso republicar
+o script mantendo a mesma URL:
 
 ## Passo a passo
 
-1. Acesse **script.google.com** logado na conta Google da Ascen.
-2. Abra o projeto do formulário (o que hoje manda o e-mail de backup).
-3. Apague todo o código atual e cole o conteúdo de **Code.gs**.
-4. Salve (Ctrl+S).
-5. Clique em **Implantar → Gerenciar implantações**.
-6. Na implantação ativa, clique no **lápis ✏️ → Versão: "Nova versão" → Implantar**.
+1. Acesse **script.google.com** e abra o projeto **"Ascen Onboarding Backend"**.
+2. Apague todo o código atual e cole o conteúdo de **Code.gs**.
+3. Salve (Ctrl+S).
+4. Clique em **Implantar → Gerenciar implantações**.
+5. Na implantação ativa, clique no **lápis ✏️ → Versão: "Nova versão" → Implantar**.
    ⚠️ **NÃO** crie uma "Nova implantação" — isso mudaria a URL e o site pararia de achar o script.
-7. Se o Google pedir permissões novas (Planilhas, Gmail, serviço externo), autorize.
+6. Se o Google pedir permissões novas, autorize.
 
 ## Como saber se deu certo
 
