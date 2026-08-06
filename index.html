@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
     <style>
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
         :root{
@@ -55,7 +55,7 @@
         .option-item:hover{border-color:var(--orange);background:rgba(255,102,0,0.04)}
         .option-item.selected{border-color:var(--orange);background:rgba(255,102,0,0.08);box-shadow:0 0 16px rgba(255,102,0,0.08)}
         .option-item input[type="radio"],.option-item input[type="checkbox"]{
-            appearance:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--border);
+            -webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--border);
             flex-shrink:0;margin-top:1px;transition:all 0.2s;cursor:pointer;position:relative}
         .option-item input[type="checkbox"]{border-radius:6px}
         .option-item input:checked{border-color:var(--orange);background:var(--orange)}
@@ -472,7 +472,10 @@ document.querySelectorAll('.other-input').forEach(inp => {
 function goStep(n) {
     document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
     document.getElementById('step' + n).classList.add('active');
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    // iOS antigo ignora scrollTo com objeto — fallback numérico
+    if ('scrollBehavior' in document.documentElement.style) window.scrollTo({top: 0, behavior: 'smooth'});
+    else window.scrollTo(0, 0);
+    if (n >= 2 && n <= 7) { _passoAtual = n; salvarRascunho(); }
 }
 function validateStep(stepNum) {
     const step = document.getElementById('step' + stepNum);
@@ -656,6 +659,8 @@ const FILA_KEY = "ascen_fila_envio";
 function lerFila(){ try { return JSON.parse(localStorage.getItem(FILA_KEY) || "[]"); } catch(e){ return []; } }
 function salvarFila(f){ try { localStorage.setItem(FILA_KEY, JSON.stringify(f)); } catch(e){} }
 function enfileirar(reg){ const f = lerFila(); f.push(reg); salvarFila(f); }
+function removerDaFila(id){ salvarFila(lerFila().filter(r => r.id !== id)); }
+function atualizarNaFila(reg){ salvarFila(lerFila().map(r => r.id === reg.id ? reg : r)); }
 let _processandoFila = false;
 function processarFila() {
     if (_processandoFila) return;
@@ -709,6 +714,61 @@ function baixarBackupCSV() {
 function limparBackup(){ if(confirm("Apagar TODAS as respostas deste dispositivo? Baixe o CSV antes.")){ localStorage.removeItem(LS_KEY); renderAdmin(); } }
 
 // ============================================================
+// RASCUNHO — iOS/Safari recarrega a página com facilidade (troca de app,
+// pressão de memória). Salva o que foi digitado e restaura ao voltar.
+// Limpa após o envio. Expira em 24h.
+// ============================================================
+const RASCUNHO_KEY = "ascen_rascunho";
+let _passoAtual = 1;
+function salvarRascunho() {
+    try {
+        const r = { _quando: new Date().toISOString(), passo: _passoAtual, textos: {}, outros: {}, marcados: [] };
+        document.querySelectorAll('input[id], textarea[id]').forEach(el => { if (el.value) r.textos[el.id] = el.value; });
+        document.querySelectorAll('.other-input[data-other]').forEach(el => { if (el.value) r.outros[el.getAttribute('data-other')] = el.value; });
+        document.querySelectorAll('.option-item input:checked').forEach(el => r.marcados.push([el.name, el.value]));
+        localStorage.setItem(RASCUNHO_KEY, JSON.stringify(r));
+    } catch (e) {}
+}
+function limparRascunho(){ try { localStorage.removeItem(RASCUNHO_KEY); } catch(e){} }
+function restaurarRascunho() {
+    let r = null;
+    try { r = JSON.parse(localStorage.getItem(RASCUNHO_KEY) || "null"); } catch(e){ return; }
+    if (!r || !r._quando) return;
+    if (new Date().getTime() - new Date(r._quando).getTime() > 24*60*60*1000) { limparRascunho(); return; }
+    try {
+        Object.keys(r.textos || {}).forEach(id => { const el = document.getElementById(id); if (el) el.value = r.textos[id]; });
+        Object.keys(r.outros || {}).forEach(name => { const el = document.querySelector('[data-other="' + name + '"]'); if (el) el.value = r.outros[name]; });
+        (r.marcados || []).forEach(par => {
+            const el = document.querySelector('input[name="' + par[0] + '"][value="' + par[1] + '"]');
+            if (el && !el.checked) { el.checked = true; el.dispatchEvent(new Event('change')); }
+        });
+        if (r.passo && r.passo >= 2 && r.passo <= 7) goStep(r.passo);
+    } catch (e) {}
+}
+// qualquer digitação/marcação atualiza o rascunho
+document.addEventListener('input', ev => { const t = ev.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) salvarRascunho(); });
+document.addEventListener('change', ev => { const t = ev.target; if (t && t.tagName === 'INPUT') salvarRascunho(); });
+
+// ============================================================
+// REDE DE SEGURANÇA iOS — se a página for fechada/minimizada com envio em
+// andamento, dispara um beacon (sobrevive ao fechamento; o servidor
+// deduplica pelo id, então nunca gera registro dobrado).
+// ============================================================
+let _regEmVoo = null;
+function beaconEmergencia() {
+    try {
+        if (!navigator.sendBeacon || !ENDPOINT_URL) return;
+        const pendentes = _regEmVoo ? [_regEmVoo] : lerFila();
+        pendentes.forEach(reg => {
+            const blob = new Blob([JSON.stringify(reg)], { type: 'text/plain;charset=utf-8' });
+            navigator.sendBeacon(ENDPOINT_URL, blob);
+        });
+    } catch (e) {}
+}
+window.addEventListener('pagehide', beaconEmergencia);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') beaconEmergencia(); });
+
+// ============================================================
 // SUBMIT — caminho verificável primeiro; fallback cego + fila se falhar.
 // A tela de sucesso é HONESTA: só diz "registrado" com confirmação real.
 // ============================================================
@@ -751,15 +811,21 @@ function submitForm() {
         form_ja_enviado: false
     };
 
-    // 1) Backup local imediato (não depende de rede)
+    // 1) Backup local imediato + JÁ entra na fila: se o cliente fechar a página
+    //    no meio do envio (comum no iOS), o cadastro sobrevive e é reenviado.
     gravarLocal(legivel);
+    enfileirar(reg);
+    _regEmVoo = reg;
 
     let finalizado = false;
     function concluir(confirmado) {
         if (finalizado) return;
         finalizado = true;
+        if (confirmado) removerDaFila(reg.id);   // registrado de verdade: sai da fila
+        _regEmVoo = null;
         montarTelaSucesso(confirmado);
         goStep(8);
+        limparRascunho();
         setStatus('');
         btn.disabled = false; btn.textContent = 'Enviar Formulário ✓';
         _enviando = false;
@@ -767,7 +833,7 @@ function submitForm() {
     function fallbackSemConfirmacao() {
         enviarParaForm(payload);          // envio direto ao Forms (cego, mas formato correto)
         reg.form_ja_enviado = true;
-        enfileirar(reg);                  // reenvio automático depois, com dedupe pelo id
+        atualizarNaFila(reg);             // fica na fila p/ reenvio automático (dedupe pelo id)
         concluir(false);
     }
 
@@ -865,7 +931,9 @@ if (/[?&]admin=1\b/.test(window.location.search)) {
     renderAdmin();
 }
 
-// Ao abrir o site, tenta reenviar cadastros que ficaram pendentes neste aparelho
+// Ao abrir o site: restaura rascunho (iOS recarrega páginas com frequência)
+// e tenta reenviar cadastros que ficaram pendentes neste aparelho
+if (!/[?&]admin=1\b/.test(window.location.search)) restaurarRascunho();
 processarFila();
 </script>
 </body>
