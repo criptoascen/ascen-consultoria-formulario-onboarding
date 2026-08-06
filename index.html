@@ -374,9 +374,9 @@
     <!-- STEP 8: Sucesso -->
     <div class="step" id="step8">
         <div class="card" style="text-align:center;padding:48px 32px">
-            <div class="success-icon">✓</div>
-            <div class="success-title">Formulário Enviado!</div>
-            <p class="success-text">Obrigado pelo seu interesse na Ascen Strategy. Para concluir, <strong>clique no botão verde abaixo para nos enviar seus dados pelo WhatsApp</strong> — assim garantimos seu atendimento.</p>
+            <div class="success-icon" id="successIcon">✓</div>
+            <div class="success-title" id="successTitle">Formulário Enviado!</div>
+            <p class="success-text" id="successText">Obrigado pelo seu interesse na Ascen Strategy. Para concluir, <strong>clique no botão verde abaixo para nos enviar seus dados pelo WhatsApp</strong> — assim garantimos seu atendimento.</p>
             <br>
             <a id="wppBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display:inline-flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#25D366,#16a34a);text-decoration:none;max-width:360px;margin:0 auto 14px">💬 Enviar meus dados no WhatsApp</a>
             <br>
@@ -416,7 +416,8 @@ const WHATSAPP_BASE = "https://wa.me/5511917536554";
 // Guarda a última resposta coletada (para PDF e WhatsApp na tela de sucesso)
 let _ultimaResposta = null;
 
-// CAMINHO 2 (backup): cole a URL do Google Apps Script (ver guia). Vazio = só local.
+// CAMINHO 2 (principal verificável): Google Apps Script — grava na planilha, avisa
+// por e-mail, repassa ao Google Forms e devolve confirmação real de registro.
 const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzzpj04RTDdwkLuUS1BgZWhtSB4SM5e_PdVw_Emw4RpmaZxZf_AbQWYx4FvSYHv0SGTAQ/exec";
 
 // entry.IDs confirmados no link de prefill oficial do Form.
@@ -460,6 +461,14 @@ document.querySelectorAll('.option-item input').forEach(input => {
         else input.closest('.option-item').classList.remove('selected');
     });
 });
+// Digitou no campo "Outro" → marca a opção automaticamente (evita texto perdido sem seleção)
+document.querySelectorAll('.other-input').forEach(inp => {
+    inp.addEventListener('input', () => {
+        const item = inp.closest('.option-item');
+        const box = item ? item.querySelector('input[type="radio"], input[type="checkbox"]') : null;
+        if (box && !box.checked && inp.value.trim()) { box.checked = true; box.dispatchEvent(new Event('change')); }
+    });
+});
 function goStep(n) {
     document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
     document.getElementById('step' + n).classList.add('active');
@@ -474,10 +483,16 @@ function validateStep(stepNum) {
         const type = field.dataset.type;
         if (type === 'radio') {
             const name = field.querySelector('.option-group').dataset.name;
-            if (!field.querySelector('input[name="' + name + '"]:checked')) { field.classList.add('error'); valid = false; }
+            const checked = field.querySelector('input[name="' + name + '"]:checked');
+            if (!checked) { field.classList.add('error'); valid = false; }
+            else if (checked.value === '__other__' && !getOutroTexto(name)) { field.classList.add('error'); valid = false; }
         } else if (type === 'checkbox') {
             const name = field.querySelector('.option-group').dataset.name;
-            if (field.querySelectorAll('input[name="' + name + '"]:checked').length === 0) { field.classList.add('error'); valid = false; }
+            const marcados = field.querySelectorAll('input[name="' + name + '"]:checked');
+            if (marcados.length === 0) { field.classList.add('error'); valid = false; }
+            else marcados.forEach(cb => {
+                if (cb.value === '__other__' && !getOutroTexto(name)) { field.classList.add('error'); valid = false; }
+            });
         } else {
             const input = field.querySelector('input, textarea');
             if (input && !input.value.trim()) { field.classList.add('error'); valid = false; }
@@ -504,6 +519,13 @@ function getRadioValue(name) {
     }
     return checked.value;
 }
+// "Outro" no Google Forms exige formato especial: entry.X=__other_option__ +
+// entry.X.other_option_response=<texto>. Texto livre no lugar da opção faz o
+// Google REJEITAR a resposta inteira (HTTP 400) em pergunta obrigatória.
+function getOutroTexto(name) {
+    const otherInput = document.querySelector('[data-other="' + name + '"]');
+    return otherInput ? otherInput.value.trim() : '';
+}
 function val(id){ const e=document.getElementById(id); return e?e.value.trim():''; }
 
 // ============================================================
@@ -529,16 +551,20 @@ function coletar() {
     set(E.tempo_cripto, val('tempo_cripto'), 'Tempo em cripto');
     set(E.nivel, getRadioValue('nivel'), 'Nível');
 
-    // Objetivos (múltipla)
-    const objs = [];
+    // Objetivos (múltipla) — "Outro" vai no formato __other_option__ que o Google aceita
+    const objs = [], objsLegivel = [];
+    let objOutro = '';
     document.querySelectorAll('input[name="objetivos"]:checked').forEach(cb => {
         if (cb.value === '__other__') {
-            const o = document.querySelector('[data-other="objetivos"]');
-            const t = o && o.value.trim() ? o.value.trim() : '';
-            if (t) objs.push(t);
-        } else objs.push(cb.value);
+            const t = getOutroTexto('objetivos');
+            if (t) { objs.push('__other_option__'); objOutro = t; objsLegivel.push(t); }
+        } else { objs.push(cb.value); objsLegivel.push(cb.value); }
     });
-    if (objs.length) { payload[E.objetivos] = objs.slice(); legivel['Objetivos'] = objs.join(' | '); }
+    if (objs.length) {
+        payload[E.objetivos] = objs.slice();
+        if (objOutro) payload[E.objetivos + '.other_option_response'] = objOutro;
+        legivel['Objetivos'] = objsLegivel.join(' | ');
+    }
 
     set(E.estrategia, getRadioValue('estrategia'), 'Tem estratégia');
     set(E.estrategia_detalhe, val('estrategia_detalhe'), 'Detalhe estratégia');
@@ -548,7 +574,18 @@ function coletar() {
     set(E.corretora, getRadioValue('corretora'), 'Tem corretora');
     set(E.quais_corretoras, val('quais_corretoras'), 'Quais corretoras');
     set(E.conhecimento_dex, getRadioValue('conhecimento_dex'), 'Conhece DEX');
-    set(E.periodo_contratacao, getRadioValue('periodo_contratacao'), 'Período');
+    // Período — "Outro" também precisa do formato __other_option__
+    const perChecked = document.querySelector('input[name="periodo_contratacao"]:checked');
+    if (perChecked && perChecked.value === '__other__') {
+        const perOutro = getOutroTexto('periodo_contratacao');
+        if (perOutro) {
+            payload[E.periodo_contratacao] = '__other_option__';
+            payload[E.periodo_contratacao + '.other_option_response'] = perOutro;
+            legivel['Período'] = perOutro;
+        }
+    } else {
+        set(E.periodo_contratacao, getRadioValue('periodo_contratacao'), 'Período');
+    }
     set(E.frequencia_contato, getRadioValue('frequencia_contato'), 'Frequência');
     set(E.cupom_indicacao, val('cupom_indicacao'), 'Cupom');
     set(E.info_adicional, val('info_adicional'), 'Info adicional');
@@ -593,13 +630,51 @@ function enviarParaForm(payload) {
 }
 
 // ============================================================
-// CAMINHO 2 — backup por e-mail (Apps Script). Independente do Form.
+// CAMINHO 2 — registro verificável (Apps Script: planilha + e-mail + Forms).
+// É o único caminho cuja resposta conseguimos LER — dele vem a confirmação real.
 // ============================================================
-function enviarBackupEmail(legivel) {
-    if (!ENDPOINT_URL) return Promise.resolve(false);
-    return fetch(ENDPOINT_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
-        body: JSON.stringify(legivel) }).then(r=>r.text()).then(()=>true).catch(()=>false);
+function enviarParaScript(reg, timeoutMs) {
+    if (!ENDPOINT_URL) return Promise.resolve({ ok:false });
+    const ctrl = ('AbortController' in window) ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs || 12000) : null;
+    return fetch(ENDPOINT_URL, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},   // text/plain evita preflight CORS
+        body: JSON.stringify(reg),
+        signal: ctrl ? ctrl.signal : undefined
+    }).then(r => r.json()).then(resp => {
+        if (timer) clearTimeout(timer);
+        return (resp && resp.ok) ? resp : { ok:false };
+    }).catch(() => { if (timer) clearTimeout(timer); return { ok:false }; });
 }
+
+// ============================================================
+// FILA DE REENVIO — cadastro não confirmado fica guardado e é reenviado
+// sozinho na próxima visita ou quando a conexão voltar (dedupe pelo id).
+// ============================================================
+const FILA_KEY = "ascen_fila_envio";
+function lerFila(){ try { return JSON.parse(localStorage.getItem(FILA_KEY) || "[]"); } catch(e){ return []; } }
+function salvarFila(f){ try { localStorage.setItem(FILA_KEY, JSON.stringify(f)); } catch(e){} }
+function enfileirar(reg){ const f = lerFila(); f.push(reg); salvarFila(f); }
+let _processandoFila = false;
+function processarFila() {
+    if (_processandoFila) return;
+    const fila = lerFila();
+    if (!fila.length) return;
+    _processandoFila = true;
+    const restantes = [];
+    let cadeia = Promise.resolve();
+    fila.forEach(reg => {
+        cadeia = cadeia.then(() => enviarParaScript(reg, 15000).then(resp => {
+            if (!resp.ok) {
+                reg._tentativas = (reg._tentativas || 0) + 1;
+                if (reg._tentativas < 12) restantes.push(reg);   // desiste após 12 tentativas
+            }
+        }));
+    });
+    cadeia.then(() => { salvarFila(restantes); _processandoFila = false; });
+}
+window.addEventListener('online', processarFila);
 
 // ============================================================
 // CAMINHO 3 — backup local (localStorage). À prova de falhas.
@@ -634,9 +709,27 @@ function baixarBackupCSV() {
 function limparBackup(){ if(confirm("Apagar TODAS as respostas deste dispositivo? Baixe o CSV antes.")){ localStorage.removeItem(LS_KEY); renderAdmin(); } }
 
 // ============================================================
-// SUBMIT — dispara os 3 caminhos e só mostra sucesso quando garantido
+// SUBMIT — caminho verificável primeiro; fallback cego + fila se falhar.
+// A tela de sucesso é HONESTA: só diz "registrado" com confirmação real.
 // ============================================================
 function setStatus(msg){ const n=document.getElementById('sendStatus'); if(n) n.textContent=msg||''; }
+function montarTelaSucesso(confirmado) {
+    const icon = document.getElementById('successIcon');
+    const title = document.getElementById('successTitle');
+    const text = document.getElementById('successText');
+    if (!icon || !title || !text) return;
+    if (confirmado) {
+        icon.textContent = '✓';
+        icon.style.background = 'linear-gradient(135deg,var(--orange),var(--gold))';
+        title.textContent = 'Cadastro registrado!';
+        text.innerHTML = 'Recebemos e <strong>confirmamos</strong> o registro dos seus dados. Para agilizar ainda mais seu atendimento, envie também pelo WhatsApp no botão verde abaixo.';
+    } else {
+        icon.textContent = '!';
+        icon.style.background = 'linear-gradient(135deg,#f59e0b,#ef4444)';
+        title.textContent = 'Falta 1 passo importante';
+        text.innerHTML = 'Sua conexão não nos deixou <strong>confirmar</strong> o registro automático (vamos tentar de novo sozinhos). Para garantir seu atendimento, <strong>clique no botão verde abaixo e envie seus dados pelo WhatsApp agora</strong>.';
+    }
+}
 let _enviando = false;
 function submitForm() {
     if (_enviando) return;
@@ -650,20 +743,47 @@ function submitForm() {
     _ultimaResposta = legivel;            // guarda p/ PDF e WhatsApp
     prepararCTAs(legivel);                // monta o link do WhatsApp na tela de sucesso
 
-    // Caminho 3 PRIMEIRO (garantido, local)
-    const localOk = gravarLocal(legivel);
+    const reg = {
+        id: 'onb-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+        quando: new Date().toISOString(),
+        legivel: legivel,
+        payload: payload,
+        form_ja_enviado: false
+    };
 
-    // Caminho 1 (Form) e Caminho 2 (e-mail) em paralelo
-    const pForm = enviarParaForm(payload);
-    const pMail = enviarBackupEmail(legivel);
+    // 1) Backup local imediato (não depende de rede)
+    gravarLocal(legivel);
 
-    Promise.allSettled([pForm, pMail]).then(() => {
+    let finalizado = false;
+    function concluir(confirmado) {
+        if (finalizado) return;
+        finalizado = true;
+        montarTelaSucesso(confirmado);
         goStep(8);
+        setStatus('');
         btn.disabled = false; btn.textContent = 'Enviar Formulário ✓';
         _enviando = false;
+    }
+    function fallbackSemConfirmacao() {
+        enviarParaForm(payload);          // envio direto ao Forms (cego, mas formato correto)
+        reg.form_ja_enviado = true;
+        enfileirar(reg);                  // reenvio automático depois, com dedupe pelo id
+        concluir(false);
+    }
+
+    // 2) Caminho principal: Apps Script → planilha + e-mail + repasse ao Forms
+    enviarParaScript(reg, 12000).then(resp => {
+        if (finalizado) return;           // trava de segurança já assumiu
+        if (resp.ok) {
+            if (resp.form !== 'ok') enviarParaForm(payload);   // planilha ok; garante o Forms daqui
+            concluir(true);
+        } else {
+            fallbackSemConfirmacao();
+        }
     });
-    // fallback de segurança: se algo travar, libera em 4s
-    setTimeout(() => { if (_enviando) { goStep(8); _enviando=false; } }, 4000);
+
+    // trava de segurança: nunca deixa o cliente preso na tela de envio
+    setTimeout(() => { if (!finalizado) fallbackSemConfirmacao(); }, 15000);
 }
 
 // Ordem amigável dos campos para PDF e WhatsApp
@@ -727,7 +847,9 @@ function gerarPDF() {
 // ============================================================
 function renderAdmin(){
     const lista = lerLocal();
-    document.getElementById('adminCount').textContent = lista.length + " resposta(s) neste dispositivo";
+    const pendentes = lerFila().length;
+    document.getElementById('adminCount').textContent = lista.length + " resposta(s) neste dispositivo" +
+        (pendentes ? " — " + pendentes + " aguardando reenvio" : "");
     const rows = lista.slice().reverse().map(r => {
         const q = (r._quando||'').replace('T',' ').slice(0,16);
         return `<tr><td>${q}</td><td>${r['Nome']||'—'}</td><td>${r['E-mail']||'—'}</td><td>${r['Telefone']||'—'}</td></tr>`;
@@ -742,6 +864,9 @@ if (/[?&]admin=1\b/.test(window.location.search)) {
     document.getElementById('stepAdmin').classList.add('active');
     renderAdmin();
 }
+
+// Ao abrir o site, tenta reenviar cadastros que ficaram pendentes neste aparelho
+processarFila();
 </script>
 </body>
 </html>
