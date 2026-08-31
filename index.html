@@ -609,11 +609,15 @@ function payloadParaBody(payload) {
     });
     return partes.join('&');
 }
+// Resolve true se o POST saiu, false se a rede recusou. Com no-cors a
+// resposta e opaca: "saiu" nao garante que o Google aceitou — por isso o
+// payload precisa estar no formato certo (ver coletar()).
 function enviarParaFormFetch(payload) {
     try {
         return fetch(GOOGLE_FORM_ACTION, { method:'POST', mode:'no-cors',
-            headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: payloadParaBody(payload) }).catch(()=>{});
-    } catch(e){ return Promise.resolve(); }
+            headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: payloadParaBody(payload) })
+            .then(() => true).catch(() => false);
+    } catch(e){ return Promise.resolve(false); }
 }
 function enviarParaFormIframe(payload) {
     try {
@@ -853,14 +857,19 @@ function submitForm() {
         if (btnVoltar) btnVoltar.disabled = false;
         _enviando = false;
     }
+    // Guarda se o POST ao Forms saiu. O iframe e só plano B: disparar os dois
+    // grava a MESMA resposta duas vezes na planilha do Forms — foi o que
+    // duplicou Danilo Valero e Amauri Cardoso em maio.
+    let formEnviado = Promise.resolve(true);
+
     function fallbackSemConfirmacao() {
-        enviarParaFormIframe(payload);    // redundância extra ao Forms (o fetch já foi no início)
+        formEnviado.then(ok => { if (!ok) enviarParaFormIframe(payload); });
         concluir(false);                  // reg já está na fila p/ reenvio automático
     }
 
     // 2) Google Forms direto do site (1x, cego) — o servidor fica leve e o
     //    Forms recebe mesmo que o Apps Script esteja lento
-    enviarParaFormFetch(payload);
+    formEnviado = enviarParaFormFetch(payload);
     reg.form_ja_enviado = true;
     atualizarNaFila(reg);
 
