@@ -415,6 +415,7 @@ const WHATSAPP_BASE = "https://wa.me/5511917536554";
 
 // Guarda a última resposta coletada (para PDF e WhatsApp na tela de sucesso)
 let _ultimaResposta = null;
+let _wppHref = null;            // link do WhatsApp com os dados, usado no botão do PDF
 
 // CAMINHO 2 (principal verificável): Google Apps Script — grava na planilha, avisa
 // por e-mail, repassa ao Google Forms e devolve confirmação real de registro.
@@ -904,47 +905,121 @@ function prepararCTAs(legivel) {
     CAMPOS_ORDEM.forEach(c => { if (legivel[c]) msg += "*" + c + ":* " + corte(legivel[c]) + "\n"; });
     msg += "\nSegue meu cadastro para iniciar o atendimento.";
     const href = WHATSAPP_BASE + "?text=" + encodeURIComponent(msg);
+    _wppHref = href;
     const btn = document.getElementById('wppBtn');
     if (btn) btn.href = href;
 }
 
+// Logo da Ascen Cripto para o cabeçalho do PDF (pré-carregado como data URL).
+let _logoPDF = null;
+(function () {
+    const img = new Image();
+    img.onload = () => {
+        try {
+            const cv = document.createElement('canvas');
+            cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+            cv.getContext('2d').drawImage(img, 0, 0);
+            _logoPDF = cv.toDataURL('image/png');
+        } catch (e) { _logoPDF = null; }
+    };
+    img.src = 'logo-pdf.png';
+})();
+
 // Gera um PDF de comprovante com todos os dados.
+const PDF_GRUPOS = [
+    ["Identificação", ["E-mail","Telefone","CPF","Endereço","Nacionalidade","Canal preferido"]],
+    ["Experiência com investimentos", ["Investe tradicional","Investe cripto","Tempo em cripto","Nível","Conhece DEX","Frequência"]],
+    ["Objetivos e perfil", ["Objetivos","Tem estratégia","Detalhe estratégia","Valor carteira","% patrimônio","Tolerância a risco"]],
+    ["Corretoras e contratação", ["Tem corretora","Quais corretoras","Período","Cupom","Info adicional","Declaração"]]
+];
 function gerarPDF() {
     const d = _ultimaResposta;
     if (!d) { return; }
     if (!window.jspdf) { alert('O gerador de PDF não carregou (conexão instável). Seus dados já foram registrados — use o botão do WhatsApp.'); return; }
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" });
-    const W = 210;
-    doc.setFillColor(10,26,46); doc.rect(0,0,W,40,"F");
-    doc.setTextColor(255,102,0); doc.setFont("helvetica","bold"); doc.setFontSize(22);
-    doc.text("ASCEN STRATEGY", 20, 20);
-    doc.setTextColor(201,169,110); doc.setFontSize(10); doc.setFont("helvetica","normal");
-    doc.text("Comprovante de Onboarding — Consultoria em Ativos Digitais", 20, 28);
-    doc.setTextColor(255,255,255); doc.setFontSize(9);
-    doc.text("Emitido em: " + new Date().toLocaleString("pt-BR"), 20, 35);
-    let y = 52;
-    doc.setTextColor(40,40,40); doc.setFont("helvetica","bold"); doc.setFontSize(13);
-    doc.text("Dados do cadastro", 20, y); y += 8;
-    doc.setFontSize(10);
-    CAMPOS_ORDEM.forEach(c => {
-        if (!d[c]) return;
-        if (y > 275) { doc.addPage(); y = 20; }
-        doc.setFont("helvetica","bold"); doc.setTextColor(70,70,70);
-        const rotulo = c + ": ";
-        doc.text(rotulo, 20, y);
-        const offset = doc.getTextWidth(rotulo);
-        doc.setFont("helvetica","normal"); doc.setTextColor(20,20,20);
-        const linhas = doc.splitTextToSize(String(d[c]), W - 40 - offset);
-        doc.text(linhas, 20 + offset, y);
-        y += Math.max(6, linhas.length * 5.5);
+    const doc = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4", compress:true });
+    const W = 210, M = 20, LIM = 276;
+    const NAVY = [10,26,46], ORANGE = [255,102,0], GOLD = [201,169,110];
+    const TXT = [28,33,43], SUB = [104,112,125], LINHA = [226,229,234], ZEBRA = [246,247,249];
+
+    // Cabeçalho
+    doc.setFillColor(...NAVY); doc.rect(0,0,W,40,"F");
+    doc.setFillColor(...ORANGE); doc.rect(0,40,W,1.2,"F");
+    if (_logoPDF) { try { doc.addImage(_logoPDF, "PNG", W-M-31.6, 13, 31.6, 14, "logo", "FAST"); } catch (e) {} }
+    doc.setTextColor(...ORANGE); doc.setFont("helvetica","bold"); doc.setFontSize(22);
+    doc.text("ASCEN STRATEGY", M, 19);
+    doc.setTextColor(...GOLD); doc.setFont("helvetica","normal"); doc.setFontSize(10);
+    doc.text("Comprovante de Onboarding · Consultoria em Ativos Digitais", M, 26.5);
+    doc.setTextColor(190,198,210); doc.setFontSize(8.5);
+    doc.text("Emitido em " + new Date().toLocaleString("pt-BR"), M, 33);
+
+    // Cartão com o nome
+    let y = 51;
+    doc.setTextColor(...SUB); doc.setFont("helvetica","bold"); doc.setFontSize(7.5);
+    doc.text("CLIENTE", M, y, { charSpace: 0.5 });
+    doc.setTextColor(...TXT); doc.setFontSize(16);
+    doc.text(String(d["Nome"] || "Cliente"), M, y + 7);
+    y += 13;
+
+    // Seções
+    const usados = new Set(["Nome"]);
+    PDF_GRUPOS.forEach(g => g[1].forEach(c => usados.add(c)));
+    const sobra = CAMPOS_ORDEM.filter(c => !usados.has(c));
+    const grupos = PDF_GRUPOS.map((g, i) => [g[0], i === PDF_GRUPOS.length - 1 ? g[1].concat(sobra) : g[1]]);
+    const LX = M + 3, VX = M + 58, VW = W - M - VX - 3;
+
+    grupos.forEach(([titulo, campos]) => {
+        const itens = campos.filter(c => d[c] != null && String(d[c]).trim() !== "");
+        if (!itens.length) return;
+        if (y > LIM - 20) { doc.addPage(); y = 22; }
+        y += 3;
+        doc.setTextColor(...ORANGE); doc.setFont("helvetica","bold"); doc.setFontSize(8);
+        const t = titulo.toUpperCase();
+        doc.text(t, M, y, { charSpace: 0.5 });
+        const tw = doc.getTextWidth(t) + t.length * 0.5;
+        doc.setDrawColor(...LINHA); doc.setLineWidth(0.3); doc.line(M + tw + 3, y - 1.2, W - M, y - 1.2);
+        y += 2.8;
+        itens.forEach((c, i) => {
+            doc.setFont("helvetica","normal"); doc.setFontSize(9.5);
+            const linhas = doc.splitTextToSize(String(d[c]), VW);
+            const h = linhas.length * 4.3 + 2.4;
+            if (y + h > LIM) { doc.addPage(); y = 22; }
+            if (i % 2 === 0) { doc.setFillColor(...ZEBRA); doc.rect(M, y, W - 2*M, h, "F"); }
+            doc.setFont("helvetica","normal"); doc.setFontSize(8.8); doc.setTextColor(...SUB);
+            doc.text(c, LX, y + 4.6);
+            doc.setFontSize(9.5); doc.setTextColor(...TXT);
+            doc.text(linhas, VX, y + 4.6);
+            y += h;
+        });
+        y += 2.5;
     });
-    y += 6;
-    if (y > 270) { doc.addPage(); y = 20; }
-    doc.setDrawColor(210,210,210); doc.line(20, y, W-20, y); y += 7;
-    doc.setFont("helvetica","italic"); doc.setFontSize(8); doc.setTextColor(120,120,120);
-    const aviso = "Comprovante gerado automaticamente. Para concluir seu atendimento, envie estes dados à Ascen Strategy pelo WhatsApp +55 11 91753-6554.";
-    doc.text(doc.splitTextToSize(aviso, W-40), 20, y);
+
+    // Próximo passo, com botão de envio
+    const href = _wppHref || WHATSAPP_BASE;
+    if (y > LIM - 28) { doc.addPage(); y = 22; }
+    y += 3;
+    const BH = 22;
+    doc.setFillColor(...NAVY); doc.roundedRect(M, y, W - 2*M, BH, 3, 3, "F");
+    doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(10.5);
+    doc.text("Próximo passo", M + 7, y + 8);
+    doc.setFont("helvetica","normal"); doc.setFontSize(8.6); doc.setTextColor(205,212,222);
+    doc.text(doc.splitTextToSize("Para concluir o seu atendimento, envie este comprovante à Ascen Cripto pelo WhatsApp +55 11 91753-6554.", 95), M + 7, y + 13.3);
+    const bw = 48, bh = 10, bx = W - M - 7 - bw, by = y + (BH - bh) / 2;
+    doc.setFillColor(...ORANGE); doc.roundedRect(bx, by, bw, bh, 2.5, 2.5, "F");
+    doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(9.5);
+    doc.text("Enviar pelo WhatsApp", bx + bw / 2, by + 6.4, { align: "center" });
+    doc.link(bx, by, bw, bh, { url: href });
+
+    // Rodapé em todas as páginas
+    const n = doc.getNumberOfPages();
+    for (let p = 1; p <= n; p++) {
+        doc.setPage(p);
+        doc.setDrawColor(...LINHA); doc.setLineWidth(0.3); doc.line(M, 283, W - M, 283);
+        doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(...SUB);
+        doc.text("Ascen Cripto · ascencripto.com.br · contato@ascencripto.com.br · CNPJ 55.145.057/0001-70", M, 288);
+        doc.text("Página " + p + " de " + n, W - M, 288, { align: "right" });
+    }
+
     const nome = (d["Nome"] || "ascen").toLowerCase().replace(/\s+/g,"-");
     doc.save("onboarding-" + nome + ".pdf");
 }
