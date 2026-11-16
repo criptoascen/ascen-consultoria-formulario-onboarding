@@ -19,7 +19,7 @@ Abra a URL do script no navegador (a mesma que está no `ENDPOINT_URL` do index.
 terminando em `/exec`). Deve aparecer:
 
 ```
-{"ok":true,"ping":true,"servico":"ascen-onboarding","versao":2}
+{"ok":true,"ping":true,"servico":"ascen-onboarding","versao":4}
 ```
 
 ## O que o script novo faz

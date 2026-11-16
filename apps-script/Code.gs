@@ -1,9 +1,10 @@
 /************************************************************
- * Ascen Strategy — Onboarding: registro blindado (v3)
+ * Ascen Strategy — Onboarding: registro blindado (v4)
  *
  * Recebe cada cadastro do site e:
  *   1. grava numa planilha Google (criada automaticamente na 1ª vez)
- *   2. avisa por e-mail o dono do script
+ *   2. avisa por e-mail o dono do script e manda cópia para
+ *      contato@ascencripto.com.br (v4, envio separado)
  *   3. repassa ao Google Forms SÓ se o site não tiver enviado (raro)
  *   4. devolve confirmação real ({ok:true}) para o site
  *
@@ -18,6 +19,7 @@
 
 const FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLSfuR78ThPtFWKO7dwXkFlTOHTxJgxcKVa_tagyHOisxR3Y7vA/formResponse";
 const NOME_PLANILHA = "Ascen Onboarding — Cadastros";
+const AVISO_COPIA = "contato@ascencripto.com.br";   // cópia do e-mail de aviso (v4)
 const CAMPOS = ["Nome","E-mail","Telefone","CPF","Endereço","Nacionalidade","Canal preferido",
   "Investe tradicional","Investe cripto","Tempo em cripto","Nível","Objetivos","Tem estratégia",
   "Detalhe estratégia","Valor carteira","% patrimônio","Tolerância a risco","Tem corretora",
@@ -25,7 +27,7 @@ const CAMPOS = ["Nome","E-mail","Telefone","CPF","Endereço","Nacionalidade","Ca
 const COL_FORMS = CAMPOS.length + 3;   // ID + Recebido em + campos + coluna Forms
 
 function doGet() {
-  return _json({ ok: true, ping: true, servico: "ascen-onboarding", versao: 3 });
+  return _json({ ok: true, ping: true, servico: "ascen-onboarding", versao: 4 });
 }
 
 function doPost(e) {
@@ -75,6 +77,17 @@ function doPost(e) {
       body: _corpoEmail(legivel, id, quando, formStatus)
     });
   } catch (err) { emailStatus = "falhou"; }
+
+  // Cópia do aviso para a caixa da empresa. Envio separado: se falhar,
+  // o aviso ao dono do script e o cadastro continuam funcionando.
+  try {
+    const alerta2 = (formStatus.indexOf("falhou") === 0) ? "⚠️ " : "";
+    MailApp.sendEmail({
+      to: AVISO_COPIA,
+      subject: alerta2 + "🟢 Novo Onboarding — " + (legivel["Nome"] || "sem nome"),
+      body: _corpoEmail(legivel, id, quando, formStatus)
+    });
+  } catch (err) { emailStatus = emailStatus + "|copia-falhou"; }
 
   return _json({ ok: true, id: id, form: formStatus, email: emailStatus });
 }
@@ -149,4 +162,14 @@ function _corpoEmail(legivel, id, quando, formStatus) {
 
 function _json(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// Teste manual (v4): roda pelo editor para conferir se a cópia chega
+// em contato@ascencripto.com.br. Não grava planilha nem Forms.
+function testarAvisoCopia() {
+  MailApp.sendEmail({
+    to: AVISO_COPIA,
+    subject: "Teste do aviso de onboarding (pode apagar)",
+    body: "Se este e-mail chegou, a cópia do aviso de onboarding para " + AVISO_COPIA + " está funcionando."
+  });
 }
